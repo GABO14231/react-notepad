@@ -1,0 +1,20 @@
+body
+{
+    background-color: #1f2023;
+    color: #dadada;
+}
+
+.home
+{
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 70px;
+}
+
+header h1 {color: #4A90E2;}
+
+.logoVite
+{
+    width: 350px;
+    height: auto;
+}

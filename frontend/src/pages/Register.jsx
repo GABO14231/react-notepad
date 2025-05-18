@@ -1,10 +1,11 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {FaEye, FaEyeSlash} from "react-icons/fa";
+import {registerUser} from "../components/ProfileManagement";
 import Modal from "../components/Modal";
 import "../styles/Register.css"
 
-const Register = () =>
+const Register = ({onRegister, redirectPage}) =>
 {
     const [input, setInput] = useState({username: "", email: "", password: "", first_name: "", last_name: ""});
     const [showPassword, setShowPassword] = useState(false);
@@ -27,9 +28,8 @@ const Register = () =>
 
         return "";
     };
-      
 
-    const handleChange = (e) => {setInput({ ...input, [e.target.name]: e.target.value });};
+    const handleChange = (e) => {setInput({...input, [e.target.name]: e.target.value});};
     const handleSubmit = async (e) =>
     {
         e.preventDefault();
@@ -41,22 +41,26 @@ const Register = () =>
         }
         try
         {
-            const response = await fetch("http://localhost:3000/users/register",
+            const {ok, data} = await registerUser(input);
+            // if (ok) navigate(`/profile/${data.user.id_user}`);
+            if (ok)
             {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(input),
-            });
-            const data = await response.json();
-            if (response.ok) navigate(`/profile/${data.user.id_user}`);
-            else setError(data.message);
+                onRegister(data.user);
+                console.log(`Server response:  ${data.message}`);
+                if (redirectPage) navigate(redirectPage);
+            }
+            else
+            {
+                console.log(`Server response: ${data.message}`);
+                setError(data.message);
+            }
         }
         catch (err)
         {
             console.error(err);
             setError("Registration failed");
         }
-    };      
+    };
 
     const togglePasswordVisibility = () => {setShowPassword(!showPassword);};
 

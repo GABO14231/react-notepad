@@ -13,8 +13,8 @@ const App = () =>
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login onLogin={setUser} />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<Login onLogin={setUser} redirectPage={"/dashboard"} />} />
+                <Route path="/register" element={<Register onRegister={setUser} redirectPage={"/dashboard"} />} />
                 <Route path="/dashboard" element={user ? <Dashboard user={user} onLogout={() => setUser(null)} /> : <Login onLogin={setUser} />} />
             </Routes>
         </Router>

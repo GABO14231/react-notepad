@@ -1,0 +1,7 @@
+{
+    "username": "postgres",
+    "password": "290103GAM",
+    "database": "react_notepad",
+    "ip": "localhost",
+    "port": "5432"
+}

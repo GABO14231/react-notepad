@@ -21,3 +21,15 @@ export const loginUser = async (input) =>
     const data = await response.json();
     return {ok: response.ok, data};
 }
+
+export const loadProfile = async (form, profileData) =>
+{
+    const response = await fetch(`http://localhost:3000/users/${profileData.id_user}`,
+    {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(form)
+    });
+    const data = await response.json();
+    return {ok: response.ok, data};
+}

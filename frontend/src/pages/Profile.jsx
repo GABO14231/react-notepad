@@ -1,0 +1,89 @@
+import {useState, useEffect} from "react";
+import {useNavigate} from "react-router-dom";
+import {FaEye, FaEyeSlash} from "react-icons/fa";
+import {loadProfile} from "../components/ProfileManagement";
+import Modal from "../components/Modal";
+import "../styles/Profile.css";
+import Navbar from "../components/Navbar";
+
+const Profile = ({profileData, setProfileData}) =>
+{
+    const [form, setForm] = useState({username: "", email: "", first_name: "", last_name: "",
+        currentPassword: "", newPassword: "", confirmPassword: ""});
+    const [error, setError] = useState("");
+    const [passwordVisibility, setPasswordVisibility] = useState({currentPassword: false,
+        newPassword: false, confirmPassword: false, backupCode: false});
+    const navigate = useNavigate();
+
+    useEffect(() =>
+    {
+        setForm({username: profileData.username, email: profileData.email,
+            first_name: profileData.first_name, last_name: profileData.last_name,
+            currentPassword: "", newPassword: "",confirmPassword: ""});
+    }, [profileData]);
+
+    const handleChange = (e) => {setForm(prev => ({...prev, [e.target.name]: e.target.value}));};
+    const handleUpdate = async (e) =>
+    {
+        e.preventDefault();
+        try
+        {
+            const {ok, data} = await loadProfile(form, profileData);
+            if (ok)
+            {
+                setProfileData(data.user);
+                console.log(`Server response: ${data.message}`);
+                setError("Profile updated successfully!");
+            }
+            else
+            {
+                console.log(`Server response: ${data.message}`);
+                setError(data.message);
+            }
+        }
+        catch (err)
+        {
+            console.error(err);
+            setError("Profile update failed");
+        }
+    };
+
+    const handleDeleteNavigation = () => {navigate(`/delete-profile/${profileData.id_user}`);};
+    const togglePasswordVisibility = (field) => {setPasswordVisibility((prev) => ({...prev, [field]: !prev[field]}));};
+
+    return (
+        <div className="profile-page">
+            <Navbar options={[{label: "Go Back", path: "/dashboard"}, {label: "Logout", path: "/"}]} />
+            <h2>Update Profile</h2>
+            <form onSubmit={handleUpdate}>
+                <input name="username" placeholder="Username" value={form.username} onChange={handleChange} />
+                <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
+                <input name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} />
+                <input name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} />
+                <h2>Change Password</h2>
+                <div className="password-wrapper">
+                    <input type={passwordVisibility.currentPassword ? "text" : "password"} name="currentPassword" placeholder="Current Password" value={form.currentPassword} onChange={handleChange} />
+                    <button type="button" onClick={() => togglePasswordVisibility("currentPassword")} className="toggle-password"> {passwordVisibility.currentPassword ? <FaEyeSlash /> : <FaEye />}</button>
+                </div>
+                <div className="password-wrapper">
+                    <input type={passwordVisibility.newPassword ? "text" : "password"} name="newPassword" placeholder="New Password" value={form.newPassword} onChange={handleChange} />
+                    <button type="button" onClick={() => togglePasswordVisibility("newPassword")} className="toggle-password"> {passwordVisibility.newPassword ? <FaEyeSlash /> : <FaEye />}</button>
+                </div>
+                <div className="password-wrapper">
+                    <input type={passwordVisibility.confirmPassword ? "text" : "password"} name="confirmPassword" placeholder="Confirm New Password" value={form.confirmPassword} onChange={handleChange} />
+                    <button type="button" onClick={() => togglePasswordVisibility("confirmPassword")} className="toggle-password"> {passwordVisibility.confirmPassword ? <FaEyeSlash /> : <FaEye />}</button>
+                </div>
+                <button className="submitButton" type="submit">Update Profile</button>
+            </form>
+            <hr />
+            <h2>Backup Code</h2>
+            <input style={{textAlign: "center"}} type={passwordVisibility.backupCode ? "text" : "password"} readOnly={true} value={"Test"} />
+            <button style={{width: "100%"}} className="backupButton" onClick={() => togglePasswordVisibility("backupCode")}>Show Backup Code</button>
+            <hr />
+            <button className="deleteButton" onClick={handleDeleteNavigation}>Delete Profile</button>
+            <Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />
+        </div>
+    );
+};
+
+export default Profile;

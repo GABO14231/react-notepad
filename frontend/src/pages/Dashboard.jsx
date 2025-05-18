@@ -6,7 +6,7 @@ const Dashboard = ({user, onLogout}) =>
     const handleLogout = () =>
     {
         console.log("Logging out...");
-        onLogout(); // Clears user data
+        onLogout();
     };
 
     const dashboardOptions = [{label: "Logout", method: handleLogout, path: "/"}, {label: "Settings", path: "/profile"}];

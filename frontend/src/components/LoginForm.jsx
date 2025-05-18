@@ -36,23 +36,36 @@ const LoginForm = ({onLogin, redirectPage}) =>
     };         
 
     const handleChange = (e) => {setInput({...input, [e.target.name]: e.target.value});};
-    const handleSubmit = (e) =>
+    const handleSubmit = async (e) =>
     {
         e.preventDefault();
         const validationError = validateInput();
-
         if (validationError)
         {
             setError(validationError);
             return;
         }
-
-        if (input.identifier === "testuser" && input.password === "password123")
+        try
         {
-            onLogin({username: "testuser", email: "test@example.com"});
-            navigate(redirectPage);
+            const response = await fetch("http://localhost:3000/users/login",
+            {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(input)
+            });
+            const data = await response.json();
+            if (response.ok)
+            {
+                onLogin(data.user);
+                if (redirectPage) navigate(redirectPage);
+            }
+            else setError(data.message || "Invalid login credentials.");
         }
-        else setError("Invalid login credentials.");
+        catch (err)
+        {
+            console.error(err);
+            setError("An error occurred during login.");
+        }
     };
     
     const togglePasswordVisibility = () => {setShowPassword(!showPassword);};

@@ -1,21 +1,21 @@
-import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import "../styles/Dashboard.css";
 
 const Dashboard = ({user, onLogout}) =>
 {
-    const navigate = useNavigate();
-
     const handleLogout = () =>
     {
+        console.log("Logging out...");
         onLogout(); // Clears user data
-        navigate("/"); // Redirects back to Home
     };
+
+    const dashboardOptions = [{label: "Logout", method: handleLogout, path: "/"}, {label: "Settings", path: "/profile"}];
 
     return (
         <div className="dashboard-container">
+            <Navbar options={dashboardOptions} />
             <h2>Welcome, {user.username}!</h2>
             <p>Email: {user.email}</p>
-            <button onClick={handleLogout}>Log Out</button>
         </div>
     );
 };

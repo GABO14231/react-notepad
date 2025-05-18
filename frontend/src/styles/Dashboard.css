@@ -18,18 +18,6 @@
     font-size: 18px;
 }
 
-.dashboard-container button {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #4A90E2;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 18px;
-    transition: 0.3s ease;
-}
-
 .dashboard-container button:hover {
     background-color: #357ABD;
 }

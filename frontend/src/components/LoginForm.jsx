@@ -4,7 +4,7 @@ import {FaEye, FaEyeSlash} from "react-icons/fa";
 import Modal from "./Modal";
 import "../styles/LoginForm.css";
 
-const LoginForm = ({onLogin}) =>
+const LoginForm = ({onLogin, redirectPage}) =>
 {
     const [input, setInput] = useState({identifier: "", password: ""});
     const [error, setError] = useState("");
@@ -50,7 +50,7 @@ const LoginForm = ({onLogin}) =>
         if (input.identifier === "testuser" && input.password === "password123")
         {
             onLogin({username: "testuser", email: "test@example.com"});
-            navigate("/dashboard");
+            navigate(redirectPage);
         }
         else setError("Invalid login credentials.");
     };

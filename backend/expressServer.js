@@ -21,15 +21,20 @@ app.post('/users/register', async (req, res) =>
     const {username, email, password, first_name, last_name} = req.body;
     try
     {
-        const query = `INSERT INTO users (email, username, user_password, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
-        const values = [email, username, password, first_name, last_name];
-        const result = await pool.query(query, values);
-        res.status(201).json({status: 'success', user: result.rows[0]});
+        const existingUserQuery = `SELECT * FROM public.users WHERE email = $1 OR username = $2`;
+        const existingUserResult = await pool.query(existingUserQuery, [email, username]);
+
+        if (existingUserResult.rowCount > 0)
+            return res.status(400).json({status: "error", message: "An user with this email or username already exists."});
+
+        const query = `INSERT INTO public.users (email, username, user_password, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
+        const result = await pool.query(query, [email, username, password, first_name, last_name]);
+        res.status(201).json({status: "success", message: "User registered!", user: result.rows[0]});
     }
     catch (error)
     {
         console.error(error);
-        res.status(500).json({status: 'error', message: 'Registration failed'});
+        res.status(500).json({status: "error", message: "Registration failed"});
     }
 });
 
@@ -44,7 +49,7 @@ app.post('/users/login', async (req, res) =>
         if (result.rowCount === 0) return res.status(400).json({status: "error", message: "User not found."});
         const user = result.rows[0];
         if (password !== user.user_password) return res.status(400).json({status: "error", message: "Invalid credentials."});
-        res.status(200).json({status: "success", user});
+        res.status(200).json({status: "success", message: "Successful login!", user});
     }
     catch (error)
     {

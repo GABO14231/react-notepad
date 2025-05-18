@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import "../styles/Home.css"
 import logo from "../assets/vite.svg"
 
-const homeOptions = [{ label: "Login", path: "/login" }, { label: "Register", path: "/register" }];
+const homeOptions = [{label: "Login", path: "/login"}, {label: "Register", path: "/register"}];
 
 const Home = () =>
 {

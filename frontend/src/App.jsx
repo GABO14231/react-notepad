@@ -3,12 +3,8 @@ import Home from "./pages/Home";
 // import Notes from "./pages/Notes";
 // import Login from "./pages/Login";
 
-// const notesOptions = [
-//     { label: "Home", path: "/" },
-//     { label: "Logout", path: "/login" },
-// ];
-
-const App = () => {
+const App = () =>
+{
     return (
         <Router>
             <Routes>

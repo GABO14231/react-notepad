@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import {useState, useEffect} from "react";
+import {Link} from "react-router-dom";
 import "../styles/Navbar.css";
 import logo from "../assets/react.svg";
 
-const Navbar = ({ options }) =>
+const Navbar = ({options}) =>
 {
     const [isVisible, setIsVisible] = useState(true);
 
@@ -29,9 +29,7 @@ const Navbar = ({ options }) =>
             </div>
             <button className="menu-toggle">☰</button>
             <ul className="nav-links">
-                {options.map((option, index) => (
-                    <li key={index}><Link to={option.path}>{option.label}</Link></li>
-                ))}
+                {options.map((option, index) => (<li key={index}><Link to={option.path}>{option.label}</Link></li>))}
             </ul>
         </nav>
     );

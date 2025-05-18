@@ -1,6 +1,5 @@
-import React from "react";
-
-const Note = ({ title, content }) => {
+const Note = ({title, content}) =>
+{
     return (
         <div className="note">
             <h2>{title}</h2>

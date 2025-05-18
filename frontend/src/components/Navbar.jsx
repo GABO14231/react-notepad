@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import "../styles/Navbar.css";
 import logo from "../assets/react.svg";
 
-const Navbar = ({options}) =>
+const Navbar = ({ options }) =>
 {
     const [isVisible, setIsVisible] = useState(true);
 
@@ -27,9 +27,14 @@ const Navbar = ({options}) =>
                 <img src={logo} alt="Logo" className="logo" />
                 <h1>React Notepad</h1>
             </div>
-            <button className="menu-toggle">☰</button>
             <ul className="nav-links">
-                {options.map((option, index) => (<li key={index}><Link to={option.path}>{option.label}</Link></li>))}
+                {options.map((option, index) => (
+                    <li key={index}>
+                        <Link to={option.path || "#"} className="nav-link"
+                            onClick={option.method ? option.method : undefined}> {option.label}
+                        </Link>
+                    </li>
+                ))}
             </ul>
         </nav>
     );

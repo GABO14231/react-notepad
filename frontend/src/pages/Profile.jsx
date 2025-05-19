@@ -8,18 +8,16 @@ import Navbar from "../components/Navbar";
 
 const Profile = ({profileData, setProfileData}) =>
 {
-    const [form, setForm] = useState({username: "", email: "", first_name: "", last_name: "",
-        currentPassword: "", newPassword: "", confirmPassword: ""});
+    const [form, setForm] = useState({username: "", email: "", first_name: "", last_name: "", currentPassword: "", newPassword: "", confirmPassword: ""});
     const [error, setError] = useState("");
-    const [passwordVisibility, setPasswordVisibility] = useState({currentPassword: false,
-        newPassword: false, confirmPassword: false, backupCode: false});
+    const [passwordVisibility, setPasswordVisibility] = useState({currentPassword: false, newPassword: false, confirmPassword: false, backupCode: false});
     const navigate = useNavigate();
 
     useEffect(() =>
     {
         setForm({username: profileData.username, email: profileData.email,
             first_name: profileData.first_name, last_name: profileData.last_name,
-            currentPassword: "", newPassword: "",confirmPassword: ""});
+            currentPassword: "", newPassword: "", confirmPassword: ""});
     }, [profileData]);
 
     const handleChange = (e) => {setForm(prev => ({...prev, [e.target.name]: e.target.value}));};
@@ -48,7 +46,7 @@ const Profile = ({profileData, setProfileData}) =>
         }
     };
 
-    const handleDeleteNavigation = () => {navigate(`/delete-profile/${profileData.id_user}`);};
+    const handleDeleteNavigation = () => {navigate(`/delprofile`);};
     const togglePasswordVisibility = (field) => {setPasswordVisibility((prev) => ({...prev, [field]: !prev[field]}));};
 
     return (

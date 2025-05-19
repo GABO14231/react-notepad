@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import DeleteProfilePage from "./pages/DeleteProfilePage";
 import Dashboard from "./pages/Dashboard";
 
 const App = () =>
@@ -27,6 +28,7 @@ const App = () =>
                 <Route path="/login" element={<Login onLogin={setUser} redirectPage={"/dashboard"} />} />
                 <Route path="/register" element={<Register onRegister={setUser} redirectPage={"/dashboard"} />} />
                 <Route path="/profile" element={user ? <Profile profileData={user} setProfileData={setUser} /> : <Login onLogin={setUser} />} />
+                <Route path="delprofile" element={user ? <DeleteProfilePage user={user} /> : <Login onLogin={setUser} />} />
                 <Route path="/dashboard" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
             </Routes>
         </Router>

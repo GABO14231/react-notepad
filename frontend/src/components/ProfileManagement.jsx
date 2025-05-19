@@ -33,3 +33,15 @@ export const loadProfile = async (form, profileData) =>
     const data = await response.json();
     return {ok: response.ok, data};
 }
+
+export const deleteProfile = async (password, id) =>
+{
+    const response = await fetch(`http://localhost:3000/users/${id}`,
+    {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({password})
+    });
+    const data = await response.json();
+    return {ok: response.ok, data};
+}

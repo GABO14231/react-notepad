@@ -124,6 +124,7 @@ app.delete('/users/:id', async (req, res) =>
 {
     const {id} = req.params;
     const {password} = req.body;
+
     try
     {
         if (!id)
@@ -131,6 +132,7 @@ app.delete('/users/:id', async (req, res) =>
             console.log(`ERROR: User ID not provided.`);
             return res.status(400).json({status: 'error', message: 'User ID is required.'});
         }
+
         const userResult = await pool.query("SELECT user_password FROM users WHERE id_user = $1;", [id]);
         if (userResult.rowCount === 0)
         {
@@ -142,13 +144,17 @@ app.delete('/users/:id', async (req, res) =>
             console.log(`ERROR: Password is incorrect.`);
             return res.status(400).json({status: 'error', message: 'Password is incorrect'});
         }
-        await pool.query("DELETE FROM users WHERE id_user = $1", [id]);
-        res.status(200).json({status: 'success', message: 'User deleted'});
+
+        await pool.query("DELETE FROM users WHERE id_user = $1;", [id]);
+        await pool.query(`WITH updated AS (SELECT id_user, ROW_NUMBER() OVER (ORDER BY id_user) AS new_id FROM users) UPDATE users SET id_user = updated.new_id FROM updated WHERE users.id_user = updated.id_user;`);
+        await pool.query("SELECT setval('users_id_user_seq', COALESCE((SELECT MAX(id_user) FROM users), 0) + 1);");
+        console.log(`User deleted and IDs corrected.`);
+        res.status(200).json({status: 'success', message: 'User deleted and IDs renumbered.'});
     }
     catch (error)
     {
         console.error(error);
-        res.status(500).json({status: 'error', message: 'User deletion failed'});
+        res.status(500).json({status: 'error', message: 'User deletion failed.'});
     }
 });
 

@@ -267,7 +267,7 @@ SELECT pg_catalog.setval('public.user_tags_id_utags_seq', 1, false);
 -- Name: users_id_user_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_user_seq', 1, false);
+SELECT pg_catalog.setval('public.users_id_user_seq', 1, true);
 
 
 --
@@ -311,11 +311,27 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: notes unq_notes_note_owner; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.notes
+    ADD CONSTRAINT unq_notes_note_owner UNIQUE (note_owner);
+
+
+--
 -- Name: user_tags unq_user_tags; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_tags
     ADD CONSTRAINT unq_user_tags UNIQUE (user_id, utag_name);
+
+
+--
+-- Name: user_tags unq_user_tags_user_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_tags
+    ADD CONSTRAINT unq_user_tags_user_id UNIQUE (user_id);
 
 
 --
@@ -337,7 +353,7 @@ CREATE INDEX idx_note_title ON public.notes USING btree (note_title);
 --
 
 ALTER TABLE ONLY public.note_tags
-    ADD CONSTRAINT fk_note_tags_notes FOREIGN KEY (note_id) REFERENCES public.notes(id_note) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_note_tags_notes FOREIGN KEY (note_id) REFERENCES public.notes(id_note) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -345,7 +361,7 @@ ALTER TABLE ONLY public.note_tags
 --
 
 ALTER TABLE ONLY public.note_tags
-    ADD CONSTRAINT fk_note_tags_tags FOREIGN KEY (tag_id) REFERENCES public.tags(id_tags) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_note_tags_tags FOREIGN KEY (tag_id) REFERENCES public.tags(id_tags) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -353,7 +369,7 @@ ALTER TABLE ONLY public.note_tags
 --
 
 ALTER TABLE ONLY public.note_tags
-    ADD CONSTRAINT fk_note_tags_user_tags FOREIGN KEY (utag_id) REFERENCES public.user_tags(id_utags) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_note_tags_user_tags FOREIGN KEY (utag_id) REFERENCES public.user_tags(id_utags) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -361,7 +377,7 @@ ALTER TABLE ONLY public.note_tags
 --
 
 ALTER TABLE ONLY public.notes
-    ADD CONSTRAINT fk_notes_users FOREIGN KEY (note_owner) REFERENCES public.users(id_user) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_notes_users FOREIGN KEY (note_owner) REFERENCES public.users(id_user) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -369,9 +385,10 @@ ALTER TABLE ONLY public.notes
 --
 
 ALTER TABLE ONLY public.user_tags
-    ADD CONSTRAINT fk_user_tags_users FOREIGN KEY (user_id) REFERENCES public.users(id_user) ON DELETE CASCADE;
+    ADD CONSTRAINT fk_user_tags_users FOREIGN KEY (user_id) REFERENCES public.users(id_user) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
 -- PostgreSQL database dump complete
 --
+

@@ -15,5 +15,5 @@ psql -U username -d react_notepad
 This backup was made using the following pg_dump command:
 
 ```
-pg_dump -U username react_notepad > backup.sql
+pg_dump -U username react_notepad > react_notepad.sql
 ```

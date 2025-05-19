@@ -27,7 +27,7 @@ const DeleteProfilePage = ({user}) =>
             {
                 console.log(`Server response: ${data.message}`);
                 setError("Profile deleted successfully");
-                navigate("/register");
+                navigate("/");
             }
             else
             {

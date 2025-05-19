@@ -27,7 +27,7 @@ const App = () =>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login onLogin={setUser} redirectPage={"/dashboard"} />} />
                 <Route path="/register" element={<Register onRegister={setUser} redirectPage={"/dashboard"} />} />
-                <Route path="/profile" element={user ? <Profile profileData={user} setProfileData={setUser} /> : <Login onLogin={setUser} />} />
+                <Route path="/profile" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : <Login onLogin={setUser} />} />
                 <Route path="delprofile" element={user ? <DeleteProfilePage user={user} /> : <Login onLogin={setUser} />} />
                 <Route path="/dashboard" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
             </Routes>

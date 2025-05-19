@@ -6,7 +6,7 @@ import Modal from "../components/Modal";
 import "../styles/Profile.css";
 import Navbar from "../components/Navbar";
 
-const Profile = ({profileData, setProfileData}) =>
+const Profile = ({profileData, setProfileData, onLogout}) =>
 {
     const [form, setForm] = useState({username: "", email: "", first_name: "", last_name: "", currentPassword: "", newPassword: "", confirmPassword: ""});
     const [error, setError] = useState("");
@@ -48,10 +48,15 @@ const Profile = ({profileData, setProfileData}) =>
 
     const handleDeleteNavigation = () => {navigate(`/delprofile`);};
     const togglePasswordVisibility = (field) => {setPasswordVisibility((prev) => ({...prev, [field]: !prev[field]}));};
+    const handleLogout = () =>
+    {
+        console.log("Logging out...");
+        onLogout();
+    };
 
     return (
         <div className="profile-page">
-            <Navbar options={[{label: "Go Back", path: "/dashboard"}, {label: "Logout", path: "/"}]} />
+            <Navbar options={[{ label: "Go Back", path: "/dashboard" }, {label: "Logout", method: handleLogout, path: "/"}]} />
             <h2>Update Profile</h2>
             <form onSubmit={handleUpdate}>
                 <input name="username" placeholder="Username" value={form.username} onChange={handleChange} />

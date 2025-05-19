@@ -25,10 +25,14 @@ app.post('/users/register', async (req, res) =>
         const existingUserResult = await pool.query(existingUserQuery, [email, username]);
 
         if (existingUserResult.rowCount > 0)
+        {
+            console.log(`ERROR: User already exists.`);
             return res.status(400).json({status: "error", message: "An user with this email or username already exists."});
+        }
 
         const query = `INSERT INTO public.users (email, username, user_password, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
         const result = await pool.query(query, [email, username, password, first_name, last_name]);
+        console.log(`Registered new user: ${username}`);
         res.status(201).json({status: "success", message: "User registered!", user: result.rows[0]});
     }
     catch (error)
@@ -46,9 +50,18 @@ app.post('/users/login', async (req, res) =>
         const query = identifier.includes("@") ? "SELECT * FROM public.users WHERE email = $1" : "SELECT * FROM public.users WHERE username = $1";
         const values = [identifier];
         const result = await pool.query(query, values);
-        if (result.rowCount === 0) return res.status(400).json({status: "error", message: "User not found."});
+        if (result.rowCount === 0)
+        {
+            console.log(`ERROR: User could not be found.`);
+            return res.status(400).json({status: "error", message: "User not found."});
+        }
         const user = result.rows[0];
-        if (password !== user.user_password) return res.status(400).json({status: "error", message: "Invalid credentials."});
+        if (password !== user.user_password)
+        {
+            console.log(`ERROR: Incorrect credentials.`);
+            return res.status(400).json({status: "error", message: "Invalid credentials."});
+        }
+        console.log(`User logged in: ${identifier}`);
         res.status(200).json({status: "success", message: "Successful login!", user});
     }
     catch (error)
@@ -66,15 +79,27 @@ app.put('/users/:id', async (req, res) =>
     try
     {
         const userResult = await pool.query("SELECT user_password FROM users WHERE id_user = $1", [id]);
-        if (userResult.rowCount === 0) return res.status(404).json({status: 'error', message: 'User not found'});
+        if (userResult.rowCount === 0)
+        {
+            console.log(`ERROR: User was not found.`);
+            return res.status(404).json({status: 'error', message: 'User not found'});
+        }
 
         let updateQuery = "";
         let values = [];
 
         if (currentPassword && newPassword && confirmPassword)
         {
-            if (newPassword !== confirmPassword) return res.status(400).json({ status: 'error', message: 'New passwords do not match' });
-            if (currentPassword !== userResult.rows[0].user_password) return res.status(400).json({ status: 'error', message: 'Current password is incorrect' });
+            if (newPassword !== confirmPassword)
+            {
+                console.log(`ERROR: The passwords do not match.`);
+                return res.status(400).json({ status: 'error', message: 'New passwords do not match' });
+            }
+            if (currentPassword !== userResult.rows[0].user_password)
+            {
+                console.log(`ERROR: Current password is incorrect.`);
+                return res.status(400).json({ status: 'error', message: 'Current password is incorrect' });
+            }
             updateQuery = `UPDATE users SET username = $1, email = $2, first_name = $3, last_name = $4, user_password = $5 WHERE id_user = $6 RETURNING *;`;
             values = [username, email, first_name, last_name, newPassword, id];
         }
@@ -85,6 +110,7 @@ app.put('/users/:id', async (req, res) =>
         }
 
         const result = await pool.query(updateQuery, values);
+        console.log(`User logged in: ${username}`);
         res.status(200).json({status: 'success', user: result.rows[0]});
     }
     catch (error)
@@ -100,10 +126,22 @@ app.delete('/users/:id', async (req, res) =>
     const {password} = req.body;
     try
     {
-        if (!id) return res.status(400).json({status: 'error', message: 'User ID is required.'});
+        if (!id)
+        {
+            console.log(`ERROR: User ID not provided.`);
+            return res.status(400).json({status: 'error', message: 'User ID is required.'});
+        }
         const userResult = await pool.query("SELECT user_password FROM users WHERE id_user = $1;", [id]);
-        if (userResult.rowCount === 0) return res.status(404).json({status: 'error', message: 'User not found'});
-        if (password !== userResult.rows[0].user_password) return res.status(400).json({status: 'error', message: 'Password is incorrect'});
+        if (userResult.rowCount === 0)
+        {
+            console.log(`ERROR: User could not be found.`);
+            return res.status(404).json({status: 'error', message: 'User not found'});
+        }
+        if (password !== userResult.rows[0].user_password)
+        {
+            console.log(`ERROR: Password is incorrect.`);
+            return res.status(400).json({status: 'error', message: 'Password is incorrect'});
+        }
         await pool.query("DELETE FROM users WHERE id_user = $1", [id]);
         res.status(200).json({status: 'success', message: 'User deleted'});
     }
@@ -114,4 +152,4 @@ app.delete('/users/:id', async (req, res) =>
     }
 });
 
-app.listen(port, () => {console.log(`Server running on port ${port}`);});
+app.listen(port, () => console.log(`Server running on port ${port}`));

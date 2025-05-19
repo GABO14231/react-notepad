@@ -100,7 +100,8 @@ app.delete('/users/:id', async (req, res) =>
     const {password} = req.body;
     try
     {
-        const userResult = await pool.query("SELECT user_password FROM users WHERE id_user = $1", [id]);
+        if (!id) return res.status(400).json({status: 'error', message: 'User ID is required.'});
+        const userResult = await pool.query("SELECT user_password FROM users WHERE id_user = $1;", [id]);
         if (userResult.rowCount === 0) return res.status(404).json({status: 'error', message: 'User not found'});
         if (password !== userResult.rows[0].user_password) return res.status(400).json({status: 'error', message: 'Password is incorrect'});
         await pool.query("DELETE FROM users WHERE id_user = $1", [id]);

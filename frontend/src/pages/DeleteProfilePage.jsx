@@ -10,6 +10,8 @@ const DeleteProfilePage = ({user, onDelete}) =>
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmModalConfig, setConfirmModalConfig] = useState({ message: "", buttons: [] });
     const navigate = useNavigate();
     if (!user || !user.id_user)
     {
@@ -43,21 +45,32 @@ const DeleteProfilePage = ({user, onDelete}) =>
         }
     };
 
+    const confirmDeleteProfile = () =>
+    {
+        setConfirmModalConfig({
+            message: "Are you REALLY sure you want to delete your profile?",
+            buttons: [{label: "Yes", action: () => {handleDelete(); setShowConfirmModal(false);}},
+            {label: "Cancel", action: () => setShowConfirmModal(false)}]
+        });
+        setShowConfirmModal(true);
+    };
+
     const togglePasswordVisibility = () => {setShowPassword(!showPassword);};
 
     return (
         <div className="delete-profile-page">
             <h2>Delete Profile</h2>
-            <p>Are you sure you want to delete your profile? This action cannot be undone.</p>
-            <form onSubmit={handleDelete}>
+            <p>This action cannot be undone.</p>
+            <form>
                 <div className="password-wrapper">
                     <input type={showPassword ? "text" : "password"} placeholder="Enter your password to confirm" value={password} onChange={(e) => setPassword(e.target.value)} />
                     <button type="button" onClick={togglePasswordVisibility} className="toggle-password"> {showPassword ? <FaEyeSlash /> : <FaEye />}</button>
                 </div>
-                <Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />
-                <button className="deleteButton" type="submit">Confirm Delete</button>
+                <button className="deleteButton" type="button" onClick={confirmDeleteProfile}>Confirm Delete</button>
+                {showConfirmModal && (<Modal message={confirmModalConfig.message} buttons={confirmModalConfig.buttons} />)}
+                {error && (<Modal message={error} buttons={[{label: "Close", action: () => setError("") }]} />)}
             </form>
-            <button className="cancelButton" onClick={() => navigate(-1)}>Cancel</button>
+            <button className="cancelButton" onClick={() => navigate('/profile')}>Cancel</button>
         </div>
     );
 };

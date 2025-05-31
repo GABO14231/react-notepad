@@ -10,7 +10,7 @@ const Modal = ({message, buttons = []}) =>
                 <div className="content">
                     <p>{message}</p>
                     <div className="button-group">
-                        {buttons.map(({ label, action }, index) => (
+                        {buttons.map(({label, action}, index) => (
                             <button key={index} onClick={action}>{label}</button>))}
                     </div>
                 </div>

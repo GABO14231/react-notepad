@@ -46,13 +46,13 @@ export const updateCode = async (id) =>
     return {ok: response.ok, data}
 }
 
-export const recoverPassword = async (code, newPassword, confirmPassword) =>
+export const recoverPassword = async (code, newPassword) =>
 {
     const response = await fetch(`http://localhost:3000/recoverpass`,
     {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({code, newPassword, confirmPassword})
+        body: JSON.stringify({code, newPassword})
     });
     const data = await response.json();
     return {ok: response.ok, data};

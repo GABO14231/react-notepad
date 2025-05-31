@@ -118,7 +118,7 @@ app.put('/users/:id', async (req, res) =>
 
         const result = await pool.query(updateQuery, values);
         console.log(`User updated: ${username}`);
-        res.status(200).json({status: 'success', message: 'User updated successfully',user: result.rows[0]});
+        res.status(200).json({status: 'success', message: 'User updated successfully', user: result.rows[0]});
     }
     catch (error)
     {

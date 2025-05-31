@@ -12,13 +12,7 @@ const DeleteProfilePage = ({user, onDelete}) =>
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [confirmModalConfig, setConfirmModalConfig] = useState({message: "", buttons: []});
-    const [navigateAfterClose, setNavigateAfterClose] = useState(false);
     const navigate = useNavigate();
-    if (!user || !user.id_user)
-    {
-        setMessage("User data missing. Please log in again.");
-        setNavigateAfterClose(true);
-    }
 
     const validateInput = () =>
     {
@@ -41,8 +35,6 @@ const DeleteProfilePage = ({user, onDelete}) =>
             {
                 console.log(`Server response: ${data.message}`);
                 onDelete();
-                setMessage("Profile deleted successfully");
-                setNavigateAfterClose(true);
             }
             else
             {
@@ -80,8 +72,7 @@ const DeleteProfilePage = ({user, onDelete}) =>
                 </div>
                 <button className="deleteButton" type="button" onClick={confirmDeleteProfile}>Confirm Delete</button>
                 {showConfirmModal && (<Modal message={confirmModalConfig.message} buttons={confirmModalConfig.buttons} />)}
-                {message && (<Modal message={message} buttons={[{label: "Close", action: () =>
-                    {setMessage(""); if (navigateAfterClose) {setNavigateAfterClose(false); navigate("/");}}}]} />)}
+                {message && (<Modal message={message} buttons={[{label: "Close", action: () => setMessage("")}]} />)}
             </form>
             <button className="cancelButton" onClick={() => navigate('/profile')}>Cancel</button>
         </div>

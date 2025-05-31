@@ -46,6 +46,18 @@ export const updateCode = async (id) =>
     return {ok: response.ok, data}
 }
 
+export const recoverPassword = async (code, newPassword, confirmPassword) =>
+{
+    const response = await fetch(`http://localhost:3000/recoverpass`,
+    {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({code, newPassword, confirmPassword})
+    });
+    const data = await response.json();
+    return {ok: response.ok, data};
+}
+
 export const deleteProfile = async (password, id) =>
 {
     const response = await fetch(`http://localhost:3000/users/${id}`,

@@ -84,7 +84,7 @@ const Login = ({onLogin, redirectPage}) =>
             </form>
             <Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />
             <div className="login-links">
-                <Link to="/">Back to Home</Link> | <Link to="/register">Register</Link>
+                <Link to="/">Back to Home</Link> | <Link to="/register">Register</Link> | <Link to="/recoverpass">Forgot Password?</Link>
             </div>
         </div>
     );

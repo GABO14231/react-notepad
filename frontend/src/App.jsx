@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import DeleteProfilePage from "./pages/DeleteProfilePage";
+import RecoverPassword from "./pages/RecoverPassword";
 import Dashboard from "./pages/Dashboard";
 
 const App = () =>
@@ -29,6 +30,7 @@ const App = () =>
                 <Route path="/register" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Register onRegister={setUser} redirectPage={"/dashboard"} />)} />
                 <Route path="/profile" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
                 <Route path="/delprofile" element={user ? (<DeleteProfilePage user={user} onDelete={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
+                <Route path="/recoverpass" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : <RecoverPassword />} />
                 <Route path="/dashboard" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
             </Routes>
         </Router>

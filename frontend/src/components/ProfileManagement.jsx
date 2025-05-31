@@ -3,7 +3,7 @@ export const registerUser = async (input) =>
     const response = await fetch("http://localhost:3000/users/register",
     {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(input),
     });
     const data = await response.json();
@@ -32,6 +32,18 @@ export const loadProfile = async (form, profileData) =>
     });
     const data = await response.json();
     return {ok: response.ok, data};
+}
+
+export const updateCode = async (id) =>
+{
+    const response = await fetch(`http://localhost:3000/users/${id}/updatecode`,
+    {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id})
+    });
+    const data = await response.json();
+    return {ok: response.ok, data}
 }
 
 export const deleteProfile = async (password, id) =>

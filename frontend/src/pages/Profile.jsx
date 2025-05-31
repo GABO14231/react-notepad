@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import {FaEye, FaEyeSlash} from "react-icons/fa";
-import {loadProfile} from "../components/ProfileManagement";
+import {loadProfile, updateCode} from "../components/ProfileManagement";
 import Modal from "../components/Modal";
 import "../styles/Profile.css";
 import Navbar from "../components/Navbar";
@@ -46,6 +46,30 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
         }
     };
 
+    const handleCode = async (e) =>
+    {
+        e.preventDefault();
+        try
+        {
+            const {ok, data} = await updateCode(profileData.id_user);
+            if (ok)
+            {
+                console.log(`Server response: ${data.message}`);
+                setError("Code updated successfully!");
+            }
+            else
+            {
+                console.log(`Server response: ${data.message}`);
+                setError(data.message);
+            }
+        }
+        catch (err)
+        {
+            console.error(err);
+            setError("Profile update failed");
+        }
+    }
+
     const handleDeleteNavigation = () => {navigate(`/delprofile`);};
     const togglePasswordVisibility = (field) => {setPasswordVisibility((prev) => ({...prev, [field]: !prev[field]}));};
     const handleLogout = () =>
@@ -82,6 +106,7 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
             <h2>Backup Code</h2>
             <input style={{textAlign: "center"}} type={passwordVisibility.backupCode ? "text" : "password"} readOnly={true} value={form.code} />
             <button style={{width: "100%"}} className="backupButton" onClick={() => togglePasswordVisibility("backupCode")}>Show Backup Code</button>
+            <button style={{width: "100%"}} className="backupButton" onClick={handleCode}>Change Backup Code</button>
             <hr />
             <button className="deleteButton" onClick={handleDeleteNavigation}>Delete Profile</button>
             <Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />

@@ -12,7 +12,8 @@ const RecoverPassword = () =>
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
+    const [navigateAfterClose, setNavigateAfterClose] = useState(false);
     const navigate = useNavigate();
 
     const toggleNewPasswordVisibility = () => setShowNewPassword(prev => !prev);
@@ -28,19 +29,19 @@ const RecoverPassword = () =>
             if (ok)
             {
                 console.log(`Server response: ${data.message}`);
-                setError("Password recovered successfully!");
-                navigate("/login");
+                setMessage("Password recovered successfully!");
+                setNavigateAfterClose(true);
             }
             else
             {
                 console.log(`Server response: ${data.message}`);
-                setError(data.message);
+                setMessage(data.message);
             }
         }
         catch (err)
         {
             console.error(err);
-            setError("Password recovery failed.");
+            setMessage("Password recovery failed.");
         }
     };
 
@@ -61,7 +62,8 @@ const RecoverPassword = () =>
                 <button className="submitButton" type="submit">Reset Password</button>
             </form>
             <button className="cancelButton" onClick={() => navigate('/login')}>Cancel</button>
-            <Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />
+            <Modal message={message} buttons={[{label: "Close", action: () =>
+                {setMessage(""); if (navigateAfterClose) {setNavigateAfterClose(false); navigate("/login");}}}]} />
         </div>
     );
 };

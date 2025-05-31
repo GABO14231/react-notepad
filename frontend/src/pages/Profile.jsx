@@ -9,7 +9,7 @@ import Navbar from "../components/Navbar";
 const Profile = ({profileData, setProfileData, onLogout}) =>
 {
     const [form, setForm] = useState({username: "", email: "", first_name: "", last_name: "", code: "", currentPassword: "", newPassword: "", confirmPassword: ""});
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
     const [passwordVisibility, setPasswordVisibility] = useState({currentPassword: false, newPassword: false, confirmPassword: false, backupCode: false});
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [confirmModalConfig, setConfirmModalConfig] = useState({message: "", buttons: []});
@@ -32,18 +32,18 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
             {
                 setProfileData(data.user);
                 console.log(`Server response: ${data.message}`);
-                setError("Profile updated successfully!");
+                setMessage("Profile updated successfully!");
             }
             else
             {
                 console.log(`Server response: ${data.message}`);
-                setError(data.message);
+                setMessage(data.message);
             }
         }
         catch (err)
         {
             console.error(err);
-            setError("Profile update failed");
+            setMessage("Profile update failed");
         }
     };
 
@@ -56,18 +56,18 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
             {
                 setProfileData(data.user);
                 console.log(`Server response: ${data.message}`);
-                setError("Code updated successfully!");
+                setMessage("Code updated successfully!");
             }
             else
             {
                 console.log(`Server response: ${data.message}`);
-                setError(data.message);
+                setMessage(data.message);
             }
         }
         catch (err)
         {
             console.error(err);
-            setError("Profile update failed");
+            setMessage("Profile update failed");
         }
     }
 
@@ -140,7 +140,7 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
             <hr />
             <button className="deleteButton" onClick={confirmDeleteProfile}>Delete Profile</button>
             {showConfirmModal && (<Modal message={confirmModalConfig.message} buttons={confirmModalConfig.buttons}/>)}
-            {error && (<Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />)}
+            {message && (<Modal message={message} buttons={[{label: "Close", action: () => setMessage("")}]} />)}
         </div>
     );
 };

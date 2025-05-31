@@ -8,15 +8,16 @@ import "../styles/DeleteProfilePage.css"
 const DeleteProfilePage = ({user, onDelete}) =>
 {
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [confirmModalConfig, setConfirmModalConfig] = useState({ message: "", buttons: [] });
+    const [confirmModalConfig, setConfirmModalConfig] = useState({message: "", buttons: []});
+    const [navigateAfterClose, setNavigateAfterClose] = useState(false);
     const navigate = useNavigate();
     if (!user || !user.id_user)
     {
-        setError("User data missing. Please log in again.");
-        return;
+        setMessage("User data missing. Please log in again.");
+        setNavigateAfterClose(true);
     }
 
     const handleDelete = async () =>
@@ -28,19 +29,19 @@ const DeleteProfilePage = ({user, onDelete}) =>
             {
                 console.log(`Server response: ${data.message}`);
                 onDelete();
-                setError("Profile deleted successfully");
-                navigate("/");
+                setMessage("Profile deleted successfully");
+                setNavigateAfterClose(true);
             }
             else
             {
                 console.log(`Server response: ${data.message}`);
-                setError(data.message);
+                setMessage(data.message);
             }
         }
         catch (err)
         {
             console.error(err);
-            setError("Profile deletion failed");
+            setMessage("Profile deletion failed");
         }
     };
 
@@ -67,7 +68,8 @@ const DeleteProfilePage = ({user, onDelete}) =>
                 </div>
                 <button className="deleteButton" type="button" onClick={confirmDeleteProfile}>Confirm Delete</button>
                 {showConfirmModal && (<Modal message={confirmModalConfig.message} buttons={confirmModalConfig.buttons} />)}
-                {error && (<Modal message={error} buttons={[{label: "Close", action: () => setError("") }]} />)}
+                {message && (<Modal message={message} buttons={[{label: "Close", action: () =>
+                    {setMessage(""); if (navigateAfterClose) {setNavigateAfterClose(false); navigate("/");}}}]} />)}
             </form>
             <button className="cancelButton" onClick={() => navigate('/profile')}>Cancel</button>
         </div>

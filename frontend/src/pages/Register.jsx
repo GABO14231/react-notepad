@@ -5,11 +5,12 @@ import {registerUser} from "../components/ProfileManagement";
 import Modal from "../components/Modal";
 import "../styles/Register.css"
 
-const Register = ({onRegister, redirectPage}) =>
+const Register = () =>
 {
     const [input, setInput] = useState({username: "", email: "", password: "", first_name: "", last_name: ""});
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
+    const [navigateAfterClose, setNavigateAfterClose] = useState(false);
     const navigate = useNavigate();
 
     const validateInput = () =>
@@ -36,29 +37,28 @@ const Register = ({onRegister, redirectPage}) =>
         const validationError = validateInput();
         if (validationError)
         {
-            setError(validationError);
+            setMessage(validationError);
             return;
         }
         try
         {
             const {ok, data} = await registerUser(input);
-            // if (ok) navigate(`/profile/${data.user.id_user}`);
             if (ok)
             {
-                onRegister(data.user);
-                console.log(`Server response:  ${data.message}`);
-                if (redirectPage) navigate(redirectPage);
+                console.log(`Server response: ${data.message}`);
+                setMessage("User registered successfully!");
+                setNavigateAfterClose(true);
             }
             else
             {
                 console.log(`Server response: ${data.message}`);
-                setError(data.message);
+                setMessage(data.message);
             }
         }
         catch (err)
         {
             console.error(err);
-            setError("Registration failed");
+            setMessage("Registration failed");
         }
     };
 
@@ -81,7 +81,8 @@ const Register = ({onRegister, redirectPage}) =>
                 </div>
                 <button type="submit" className="submitButton">Register</button>
             </form>
-            <Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />
+            <Modal message={message} buttons={[{label: "Close", action: () =>
+                    {setMessage(""); if (navigateAfterClose) {setNavigateAfterClose(false); navigate("/login");}}}]} />
             <div className="login-links">
                 <Link to="/">Back to Home</Link>
             </div>

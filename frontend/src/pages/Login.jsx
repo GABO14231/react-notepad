@@ -5,10 +5,10 @@ import {loginUser} from "../components/ProfileManagement";
 import Modal from "../components/Modal";
 import "../styles/Login.css";
 
-const Login = ({onLogin, redirectPage}) =>
+const Login = ({onLogin}) =>
 {
     const [input, setInput] = useState({identifier: "", password: ""});
-    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const validateInput = () =>
@@ -42,7 +42,7 @@ const Login = ({onLogin, redirectPage}) =>
         const validationError = validateInput();
         if (validationError)
         {
-            setError(validationError);
+            setMessage(validationError);
             return;
         }
         try
@@ -52,18 +52,18 @@ const Login = ({onLogin, redirectPage}) =>
             {
                 onLogin(data.user);
                 console.log(`Server response: ${data.message}`);
-                if (redirectPage) navigate(redirectPage);
+                navigate("/dashboard");
             }
             else
             {
                 console.log(`Server response: ${data.message}`);
-                setError(data.message || "Invalid login credentials.");
+                setMessage(data.message || "Invalid login credentials.");
             }
         }
         catch (err)
         {
             console.error(err);
-            setError("An error occurred during login.");
+            setMessage("An error occurred during login.");
         }
     };
     const togglePasswordVisibility = () => {setShowPassword(!showPassword);};
@@ -82,7 +82,7 @@ const Login = ({onLogin, redirectPage}) =>
                 </div>
                 <button type="submit" className="login-button">Log In</button>
             </form>
-            <Modal message={error} buttons={[{label: "Close", action: () => setError("")}]} />
+            <Modal message={message} buttons={[{label: "Close", action: () => setMessage("")}]} />
             <div className="login-links">
                 <Link to="/">Back to Home</Link> | <Link to="/register">Register</Link> | <Link to="/recoverpass">Forgot Password?</Link>
             </div>

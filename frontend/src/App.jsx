@@ -26,8 +26,8 @@ const App = () =>
         <Router>
             <Routes>
                 <Route path="/" element={<Home user={user} onLogout={() => setUser(null)} />} />
-                <Route path="/login" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} redirectPage={"/dashboard"} />)} />
-                <Route path="/register" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Register onRegister={setUser} redirectPage={"/dashboard"} />)} />
+                <Route path="/login" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
+                <Route path="/register" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Register />)} />
                 <Route path="/profile" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
                 <Route path="/delprofile" element={user ? (<DeleteProfilePage user={user} onDelete={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
                 <Route path="/recoverpass" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : <RecoverPassword />} />

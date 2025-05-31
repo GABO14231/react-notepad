@@ -83,7 +83,23 @@ app.post('/users/login', async (req, res) =>
         res.status(500).json({status: "error", message: "An error occurred during login."});
     }
 });
-  
+
+app.put('/users/:id/updatecode', async (req, res) =>
+{
+    const {id} = req.params;
+    try
+    {
+        const newCode = generateRecoveryCode();
+        await pool.query(`UPDATE users SET code = $1 WHERE id_user = $2 RETURNING *;`, [newCode, id]);
+        console.log(`Code updated: ${newCode}`);
+        res.status(200).json({status: 'success', message: 'Code updated successfully'});
+    }
+    catch (error)
+    {
+        console.error(error);
+        res.status(500).json({status: 'error', message: 'Code update failed'});
+    }
+})
 
 app.put('/users/:id', async (req, res) =>
 {

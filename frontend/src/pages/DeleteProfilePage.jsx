@@ -19,9 +19,8 @@ const DeleteProfilePage = ({user, onDelete}) =>
         return;
     }
 
-    const handleDelete = async (e) =>
+    const handleDelete = async () =>
     {
-        e.preventDefault();
         try
         {
             const {ok, data} = await deleteProfile(password, user.id_user);

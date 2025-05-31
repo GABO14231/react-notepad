@@ -23,9 +23,8 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
     }, [profileData]);
 
     const handleChange = (e) => {setForm(prev => ({...prev, [e.target.name]: e.target.value}));};
-    const handleUpdate = async (e) =>
+    const handleUpdate = async () =>
     {
-        e.preventDefault();
         try
         {
             const {ok, data} = await loadProfile(form, profileData);
@@ -48,9 +47,8 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
         }
     };
 
-    const handleCode = async (e) =>
+    const handleCode = async () =>
     {
-        e.preventDefault();
         try
         {
             const {ok, data} = await updateCode(profileData.id_user);

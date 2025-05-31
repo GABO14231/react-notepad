@@ -9,7 +9,7 @@ const Dashboard = ({user, onLogout}) =>
         onLogout();
     };
 
-    const dashboardOptions = [{label: "Home", path: "/"}, {label: "Logout", method: handleLogout, path: "/"}, {label: "Settings", path: "/profile"}];
+    const dashboardOptions = [{label: "Home", path: "/"}, {label: "Settings", path: "/profile"}, {label: "Logout", method: handleLogout, path: "/"}];
 
     return (
         <div className="dashboard-container">

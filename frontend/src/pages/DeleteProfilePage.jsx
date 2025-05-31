@@ -5,7 +5,7 @@ import {deleteProfile} from "../components/ProfileManagement";
 import Modal from "../components/Modal";
 import "../styles/DeleteProfilePage.css"
 
-const DeleteProfilePage = ({user}) =>
+const DeleteProfilePage = ({user, onDelete}) =>
 {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -26,6 +26,7 @@ const DeleteProfilePage = ({user}) =>
             if (ok)
             {
                 console.log(`Server response: ${data.message}`);
+                onDelete();
                 setError("Profile deleted successfully");
                 navigate("/");
             }

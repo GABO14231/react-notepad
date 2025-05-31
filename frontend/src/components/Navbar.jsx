@@ -1,10 +1,12 @@
 import {useState, useEffect} from "react";
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import "../styles/Navbar.css";
 import logo from "../assets/react.svg";
 
 const Navbar = ({options}) =>
 {
+    const location = useLocation();
+    const isHome = location.pathname === "/";
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() =>
@@ -24,8 +26,8 @@ const Navbar = ({options}) =>
     return (
         <nav className={`navbar ${isVisible ? "visible" : "hidden"}`}>
             <div className="navbar-left">
-                <img src={logo} alt="Logo" className="logo" />
-                <h1>React Notepad</h1>
+                {isHome ? (<><img src={logo} alt="Logo" className="logo" /> <h1>React Notepad</h1></>) :
+                    (<Link to="/" className="navbar-home-link"> <img src={logo} alt="Logo" className="logo" /> <h1>React Notepad</h1></Link>)}
             </div>
             <ul className="nav-links">
                 {options.map((option, index) => (

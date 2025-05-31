@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 
 const Profile = ({profileData, setProfileData, onLogout}) =>
 {
-    const [form, setForm] = useState({username: "", email: "", first_name: "", last_name: "", currentPassword: "", newPassword: "", confirmPassword: ""});
+    const [form, setForm] = useState({username: "", email: "", first_name: "", last_name: "", code: "", currentPassword: "", newPassword: "", confirmPassword: ""});
     const [error, setError] = useState("");
     const [passwordVisibility, setPasswordVisibility] = useState({currentPassword: false, newPassword: false, confirmPassword: false, backupCode: false});
     const navigate = useNavigate();
@@ -17,7 +17,7 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
     {
         setForm({username: profileData.username, email: profileData.email,
             first_name: profileData.first_name, last_name: profileData.last_name,
-            currentPassword: "", newPassword: "", confirmPassword: ""});
+            code: profileData.code, currentPassword: "", newPassword: "", confirmPassword: ""});
     }, [profileData]);
 
     const handleChange = (e) => {setForm(prev => ({...prev, [e.target.name]: e.target.value}));};
@@ -80,7 +80,7 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
             </form>
             <hr />
             <h2>Backup Code</h2>
-            <input style={{textAlign: "center"}} type={passwordVisibility.backupCode ? "text" : "password"} readOnly={true} value={"Test"} />
+            <input style={{textAlign: "center"}} type={passwordVisibility.backupCode ? "text" : "password"} readOnly={true} value={form.code} />
             <button style={{width: "100%"}} className="backupButton" onClick={() => togglePasswordVisibility("backupCode")}>Show Backup Code</button>
             <hr />
             <button className="deleteButton" onClick={handleDeleteNavigation}>Delete Profile</button>

@@ -7,6 +7,18 @@ const config = JSON.parse(fs.readFileSync('./config.json'));
 const app = express();
 const port = 3000;
 
+const generateRecoveryCode = () =>
+{
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let code = "";
+    for (let i = 0; i < 6; i++)
+    {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        code += characters.charAt(randomIndex);
+    }
+    return code;
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -19,6 +31,7 @@ const pool = new Pool
 app.post('/users/register', async (req, res) =>
 {
     const {username, email, password, first_name, last_name} = req.body;
+    const code = generateRecoveryCode();
     try
     {
         const existingUserQuery = `SELECT * FROM public.users WHERE email = $1 OR username = $2`;
@@ -30,8 +43,8 @@ app.post('/users/register', async (req, res) =>
             return res.status(400).json({status: "error", message: "An user with this email or username already exists."});
         }
 
-        const query = `INSERT INTO public.users (email, username, user_password, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
-        const result = await pool.query(query, [email, username, password, first_name, last_name]);
+        const query = `INSERT INTO public.users (email, username, user_password, first_name, last_name, code) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;`;
+        const result = await pool.query(query, [email, username, password, first_name, last_name, code]);
         console.log(`Registered new user: ${username}`);
         res.status(201).json({status: "success", message: "User registered!", user: result.rows[0]});
     }
@@ -93,12 +106,12 @@ app.put('/users/:id', async (req, res) =>
             if (newPassword !== confirmPassword)
             {
                 console.log(`ERROR: The passwords do not match.`);
-                return res.status(400).json({ status: 'error', message: 'New passwords do not match' });
+                return res.status(400).json({status: 'error', message: 'New passwords do not match'});
             }
             if (currentPassword !== userResult.rows[0].user_password)
             {
                 console.log(`ERROR: Current password is incorrect.`);
-                return res.status(400).json({ status: 'error', message: 'Current password is incorrect' });
+                return res.status(400).json({status: 'error', message: 'Current password is incorrect'});
             }
             updateQuery = `UPDATE users SET username = $1, email = $2, first_name = $3, last_name = $4, user_password = $5 WHERE id_user = $6 RETURNING *;`;
             values = [username, email, first_name, last_name, newPassword, id];
@@ -146,8 +159,14 @@ app.delete('/users/:id', async (req, res) =>
         }
 
         await pool.query("DELETE FROM users WHERE id_user = $1;", [id]);
-        await pool.query(`WITH updated AS (SELECT id_user, ROW_NUMBER() OVER (ORDER BY id_user) AS new_id FROM users) UPDATE users SET id_user = updated.new_id FROM updated WHERE users.id_user = updated.id_user;`);
-        await pool.query("SELECT setval('users_id_user_seq', COALESCE((SELECT MAX(id_user) FROM users), 0) + 1);");
+
+        const checkUsers = await pool.query("SELECT * FROM users;");
+        if (checkUsers.rowCount === 0) await pool.query("ALTER SEQUENCE users_id_user_seq RESTART;");
+        else
+        {
+            await pool.query(`WITH updated AS (SELECT id_user, ROW_NUMBER() OVER (ORDER BY id_user) AS new_id FROM users) UPDATE users SET id_user = updated.new_id FROM updated WHERE users.id_user = updated.id_user;`);
+            await pool.query("SELECT setval('users_id_user_seq', COALESCE((SELECT MAX(id_user) FROM users), 0) + 1);");
+        }
         console.log(`User deleted and IDs corrected.`);
         res.status(200).json({status: 'success', message: 'User deleted and IDs renumbered.'});
     }

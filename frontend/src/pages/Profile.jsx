@@ -22,9 +22,38 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
             code: profileData.code, currentPassword: "", newPassword: "", confirmPassword: ""});
     }, [profileData]);
 
+    const validateInput = () =>
+    {
+        const {username, email, currentPassword, newPassword, confirmPassword} = form;
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+        if (!email.includes("@")) return "Email must contain '@'.";
+        if (!emailRegex.test(email)) return "Invalid email format (check domain part).";
+
+        const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+        if (username.length < 3) return "Username must be at least 3 characters.";
+        if (!usernameRegex.test(username)) return "Username can only contain letters, numbers, and underscores.";
+        if ((currentPassword !== "") || (newPassword !== "") || (confirmPassword !== ""))
+        {
+            if (((currentPassword === "") && (confirmPassword !== "")) || ((currentPassword === "") && (newPassword !== ""))) return "Please insert your current password."
+            if (((newPassword !== "") && (confirmPassword === "")) || ((confirmPassword !== "") && (newPassword === ""))) return "Please enter your new password twice."
+            if ((currentPassword.length < 6) || (newPassword.length < 6) || (confirmPassword.length < 6)) return "Password must be at least 6 characters.";
+            if (newPassword !== confirmPassword) return "The passwords do not match."
+            if ((newPassword === confirmPassword) && (confirmPassword === currentPassword)) return "You are using your current password. Please use a new one."
+        }
+
+        return "";
+    };
+
     const handleChange = (e) => {setForm(prev => ({...prev, [e.target.name]: e.target.value}));};
     const handleUpdate = async () =>
     {
+        const validationError = validateInput();
+        if (validationError)
+        {
+            setMessage(validationError);
+            return;
+        }
         try
         {
             const {ok, data} = await loadProfile(form, profileData);

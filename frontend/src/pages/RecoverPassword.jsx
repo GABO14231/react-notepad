@@ -19,13 +19,28 @@ const RecoverPassword = () =>
     const toggleNewPasswordVisibility = () => setShowNewPassword(prev => !prev);
     const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(prev => !prev);
 
+    const validateInput = () =>
+    {
+        if (((newPassword !== "") && (confirmPassword === "")) || ((confirmPassword !== "") && (newPassword === ""))) return "Please enter your new password twice."
+        if ((newPassword.length < 6) || (confirmPassword.length < 6)) return "Password must be at least 6 characters.";
+        if (newPassword !== confirmPassword) return "The passwords do not match."
+
+        return "";
+    };
+
     const handleRecovery = async (e) =>
     {
         e.preventDefault();
 
+        const validationError = validateInput();
+        if (validationError)
+        {
+            setMessage(validationError);
+            return;
+        }
         try
         {
-            const {ok, data} = await recoverPassword(code, newPassword, confirmPassword);
+            const {ok, data} = await recoverPassword(code, newPassword);
             if (ok)
             {
                 console.log(`Server response: ${data.message}`);

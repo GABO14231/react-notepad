@@ -20,8 +20,20 @@ const DeleteProfilePage = ({user, onDelete}) =>
         setNavigateAfterClose(true);
     }
 
+    const validateInput = () =>
+    {
+        if (password.length < 6) return "Password must be at least 6 characters.";
+        return "";
+    };
+
     const handleDelete = async () =>
     {
+        const validationError = validateInput();
+        if (validationError)
+        {
+            setMessage(validationError);
+            return;
+        }
         try
         {
             const {ok, data} = await deleteProfile(password, user.id_user);

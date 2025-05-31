@@ -147,7 +147,8 @@ CREATE TABLE public.users (
     username character varying,
     user_password character varying,
     first_name character varying,
-    last_name character varying
+    last_name character varying,
+    code character varying
 );
 
 
@@ -238,7 +239,7 @@ COPY public.user_tags (id_utags, user_id, utag_name) FROM stdin;
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (id_user, email, username, user_password, first_name, last_name) FROM stdin;
+COPY public.users (id_user, email, username, user_password, first_name, last_name, code) FROM stdin;
 \.
 
 
@@ -267,7 +268,7 @@ SELECT pg_catalog.setval('public.user_tags_id_utags_seq', 1, false);
 -- Name: users_id_user_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_user_seq', 1, true);
+SELECT pg_catalog.setval('public.users_id_user_seq', 1, false);
 
 
 --

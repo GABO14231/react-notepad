@@ -87,7 +87,7 @@ app.post('/users/login', async (req, res) =>
 app.put('/users/:id', async (req, res) =>
 {
     const {id} = req.params;
-    const {username, email, first_name, last_name, currentPassword, newPassword, confirmPassword} = req.body;
+    const {username, email, first_name, last_name, currentPassword, newPassword} = req.body;
     try
     {
         const userResult = await pool.query("SELECT user_password FROM users WHERE id_user = $1", [id]);
@@ -100,13 +100,8 @@ app.put('/users/:id', async (req, res) =>
         let updateQuery = "";
         let values = [];
 
-        if (currentPassword && newPassword && confirmPassword)
+        if (currentPassword && newPassword)
         {
-            if (newPassword !== confirmPassword)
-            {
-                console.log(`ERROR: The passwords do not match.`);
-                return res.status(400).json({status: 'error', message: 'New passwords do not match'});
-            }
             if (currentPassword !== userResult.rows[0].user_password)
             {
                 console.log(`ERROR: Current password is incorrect.`);
@@ -151,7 +146,7 @@ app.put('/users/:id/updatecode', async (req, res) =>
 
 app.put('/recoverpass', async (req, res) =>
 {
-    const {code, newPassword, confirmPassword} = req.body;
+    const {code, newPassword} = req.body;
     try
     {
         const idQuery = await pool.query("SELECT id_user FROM users WHERE code = $1", [code]);
@@ -163,27 +158,19 @@ app.put('/recoverpass', async (req, res) =>
         else
         {
             const id = idQuery.rows[0].id_user;
-            if (newPassword !== confirmPassword)
+            const passwordQuery = await pool.query("SELECT user_password FROM users where id_user = $1", [id]);
+            if (newPassword === passwordQuery.rows[0].user_password)
             {
-                console.log(`ERROR: The passwords do not match.`);
-                return res.status(400).json({status: 'error', message: 'The passwords do not match'});
+                console.log(`ERROR: This is your current password.`);
+                return res.status(400).json({status: 'error', message: 'This is your current password'});                    
             }
             else
             {
-                const passwordQuery = await pool.query("SELECT user_password FROM users where id_user = $1", [id]);
-                if (newPassword === passwordQuery.rows[0].user_password)
-                {
-                    console.log(`ERROR: This is your current password.`);
-                    return res.status(400).json({ status: 'error', message: 'This is your current password'});                    
-                }
-                else
-                {
-                    const newCode = generateRecoveryCode();
-                    const values = [newCode, newPassword, id];
-                    await pool.query(`UPDATE users SET code = $1, user_password = $2 WHERE id_user = $3 RETURNING *;`, values);
-                    console.log('Password and recovery code updated');
-                    res.status(200).json({status: 'success', message: 'Password recovered successfully'});
-                }
+                const newCode = generateRecoveryCode();
+                const values = [newCode, newPassword, id];
+                await pool.query(`UPDATE users SET code = $1, user_password = $2 WHERE id_user = $3 RETURNING *;`, values);
+                console.log('Password and recovery code updated');
+                res.status(200).json({status: 'success', message: 'Password recovered successfully'});
             }
         }
     }
@@ -201,12 +188,6 @@ app.delete('/users/:id', async (req, res) =>
 
     try
     {
-        if (!id)
-        {
-            console.log(`ERROR: User ID not provided.`);
-            return res.status(400).json({status: 'error', message: 'User ID is required.'});
-        }
-
         const userResult = await pool.query("SELECT user_password FROM users WHERE id_user = $1;", [id]);
         if (userResult.rowCount === 0)
         {

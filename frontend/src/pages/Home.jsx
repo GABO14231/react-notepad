@@ -2,10 +2,18 @@ import Navbar from "../components/Navbar";
 import "../styles/Home.css"
 import logo from "../assets/vite.svg"
 
-const homeOptions = [{label: "Login", path: "/login"}, {label: "Register", path: "/register"}];
-
-const Home = () =>
+const Home = ({user, onLogout}) =>
 {
+    const handleLogout = () =>
+    {
+        console.log("Logging out...");
+        onLogout();
+    };
+
+    let homeOptions = [];
+    if (user) homeOptions = [{label: "Dashboard", path: "/dashboard"}, {label: "Logout", method: handleLogout, path: "/"}, {label: "Settings", path: "/profile"}];
+    else homeOptions = [{label: "Login", path: "/login"}, {label: "Register", path: "/register"}];
+
     return (
         <div>
             <Navbar options={homeOptions} />

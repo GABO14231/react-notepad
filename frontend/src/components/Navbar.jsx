@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import "../styles/Navbar.css";
 import logo from "../assets/react.svg";
 
-const Navbar = ({ options }) =>
+const Navbar = ({options}) =>
 {
     const [isVisible, setIsVisible] = useState(true);
 

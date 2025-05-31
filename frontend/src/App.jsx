@@ -24,11 +24,11 @@ const App = () =>
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login onLogin={setUser} redirectPage={"/dashboard"} />} />
-                <Route path="/register" element={<Register onRegister={setUser} redirectPage={"/dashboard"} />} />
+                <Route path="/" element={<Home user={user} onLogout={() => setUser(null)} />} />
+                <Route path="/login" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} redirectPage={"/dashboard"} />)} />
+                <Route path="/register" element={user ? (<Register onRegister={setUser} redirectPage={"/dashboard"} />) : (<Dashboard user={user} onLogout={() => setUser(null)} />)} />
                 <Route path="/profile" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : <Login onLogin={setUser} />} />
-                <Route path="delprofile" element={user ? <DeleteProfilePage user={user} /> : <Login onLogin={setUser} />} />
+                <Route path="/delprofile" element={user ? <DeleteProfilePage user={user} /> : <Login onLogin={setUser} />} />
                 <Route path="/dashboard" element={user ? (<Dashboard user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
             </Routes>
         </Router>

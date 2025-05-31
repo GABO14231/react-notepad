@@ -84,23 +84,6 @@ app.post('/users/login', async (req, res) =>
     }
 });
 
-app.put('/users/:id/updatecode', async (req, res) =>
-{
-    const {id} = req.params;
-    try
-    {
-        const newCode = generateRecoveryCode();
-        await pool.query(`UPDATE users SET code = $1 WHERE id_user = $2 RETURNING *;`, [newCode, id]);
-        console.log(`Code updated: ${newCode}`);
-        res.status(200).json({status: 'success', message: 'Code updated successfully'});
-    }
-    catch (error)
-    {
-        console.error(error);
-        res.status(500).json({status: 'error', message: 'Code update failed'});
-    }
-})
-
 app.put('/users/:id', async (req, res) =>
 {
     const {id} = req.params;
@@ -139,13 +122,75 @@ app.put('/users/:id', async (req, res) =>
         }
 
         const result = await pool.query(updateQuery, values);
-        console.log(`User logged in: ${username}`);
-        res.status(200).json({status: 'success', user: result.rows[0]});
+        console.log(`User updated: ${username}`);
+        res.status(200).json({status: 'success', message: 'User updated successfully',user: result.rows[0]});
     }
     catch (error)
     {
         console.error(error);
         res.status(500).json({status: 'error', message: 'User update failed'});
+    }
+});
+
+app.put('/users/:id/updatecode', async (req, res) =>
+{
+    const {id} = req.params;
+    try
+    {
+        const newCode = generateRecoveryCode();
+        const result = await pool.query(`UPDATE users SET code = $1 WHERE id_user = $2 RETURNING *;`, [newCode, id]);
+        console.log(`Code updated: ${newCode}`);
+        res.status(200).json({status: 'success', message: 'Code updated successfully', user: result.rows[0]});
+    }
+    catch (error)
+    {
+        console.error(error);
+        res.status(500).json({status: 'error', message: 'Code update failed'});
+    }
+});
+
+app.put('/recoverpass', async (req, res) =>
+{
+    const {code, newPassword, confirmPassword} = req.body;
+    try
+    {
+        const idQuery = await pool.query("SELECT id_user FROM users WHERE code = $1", [code]);
+        if (idQuery.rowCount === 0)
+        {
+            console.log(`ERROR: The recovery code is invalid.`);
+            return res.status(400).json({status: 'error', message: 'Invalid recovery code'});
+        }
+        else
+        {
+            const id = idQuery.rows[0].id_user;
+            if (newPassword !== confirmPassword)
+            {
+                console.log(`ERROR: The passwords do not match.`);
+                return res.status(400).json({status: 'error', message: 'The passwords do not match'});
+            }
+            else
+            {
+                const passwordQuery = await pool.query("SELECT user_password FROM users where id_user = $1", [id]);
+                if (newPassword === passwordQuery.rows[0].user_password)
+                {
+                    console.log(`ERROR: This is your current password.`);
+                    return res.status(400).json({ status: 'error', message: 'This is your current password'});                    
+                }
+                else
+                {
+                    const newCode = generateRecoveryCode();
+                    const values = [newCode, newPassword, id];
+                    await pool.query(`UPDATE users SET code = $1, user_password = $2 WHERE id_user = $3 RETURNING *;`, values);
+                    console.log('Password and recovery code updated');
+                    res.status(200).json({status: 'success', message: 'Password recovered successfully'});
+                }
+            }
+        }
+    }
+    catch (error)
+    {
+        console.error(error);
+        res.status(500).json({status: 'error', message: 'Password recovery failed'});
     }
 });
 

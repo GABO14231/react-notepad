@@ -1,51 +1,113 @@
 import {useState, useEffect, useCallback} from "react";
 import {useParams, useNavigate, useLocation} from "react-router-dom";
 import {TagDropdown} from "./TagDropdown";
+import {addNotes, editNotes, getNotes, getTags} from "../components/NoteManagement";
+import Modal from "./Modal";
 import "../styles/NoteEditor.css";
 
-const NoteEditor = () =>
+const NoteEditor = ({user}) =>
 {
     const {id} = useParams();
+    const [message, setMessage] = useState("");
     const navigate = useNavigate();
     const location = useLocation();
     const isPopout = new URLSearchParams(location.search).get("popout") === "true";
     const isNew = id === "new";
-    const availableTags = ["Work", "Personal", "Important", "Idea", "Todo"];
 
-    const [note, setNote] = useState({
-        title: "",
-        content: "",
-        color: "#ffffff",
-        tags: [],
-    });
+    const [availableTags, setAvailableTags] = useState([]);
+
+    useEffect(() =>
+    {
+        const fetchAvailableTags = async () =>
+        {
+            const result = await getTags(user.id_user);
+            if (result.ok && result.data?.tags)
+            {
+                const builtInTags = result.data.tags.builtIn || [];
+                const customTags = result.data.tags.custom || [];
+                const allTags = [...builtInTags.map((tag) => ({id: parseInt(tag.id_tags, 10),
+                    name: tag.tag_name,type: "builtIn", key: `builtIn-${tag.id_tags}`,})),
+                    ...customTags.map((tag) => ({id: parseInt(tag.id_utags, 10), name: tag.utag_name,
+                    type: "custom", key: `custom-${tag.id_utags}`,})),];
+                setAvailableTags(allTags);
+            }
+            else setAvailableTags([]);
+        };
+        fetchAvailableTags();
+    }, [user]);
+
+    const [note, setNote] = useState({title: "", content: "", color: "#ffffff", tags: []});
 
     useEffect(() =>
     {
         if (!isNew)
         {
-            const fetchedNote =
+            const fetchNoteData = async () =>
             {
-                title: `Note ${id}`,
-                content: `This is detailed content for note ${id}. You may edit this content.`,
-                color: "#f5f5f5",
-                tags: ["Important", "Demo"],
+                const result = await getNotes(user.id_user);
+                if (result.ok && result.data?.notes)
+                {
+                    const currentNoteRaw = result.data.notes.find((n) => String(n.id_note) === id);
+                    if (currentNoteRaw)
+                    {
+                        const normalizedNote =
+                        {
+                            id: currentNoteRaw.id_note,
+                            title: currentNoteRaw.note_title,
+                            content: currentNoteRaw.note_content,
+                            color: currentNoteRaw.note_color,
+                            tags: currentNoteRaw.tags || [],
+                        };
+                        setNote(normalizedNote);
+                    }
+                    else
+                    {
+                        console.error("Note not found");
+                        setMessage("No note found.")
+                    }
+                }
+                else
+                {
+                    console.error("Failed to fetch note data");
+                    setMessage("Failed to fetch note data.")
+                }
             };
-            setNote(fetchedNote);
+            fetchNoteData();
         }
-    }, [isNew, id]);
+    }, [isNew, id, user]);
 
-    const handleInputChange = useCallback((e) =>
-    {
-        const {name, value} = e.target;
-        setNote((prevNote) => ({...prevNote, [name]: value}));
-    }, []);
-
+    const handleInputChange = useCallback((e) => {const {name, value} = e.target; setNote((prevNote) => ({...prevNote, [name]: value}));}, []);
     const handleTagsChange = useCallback((tags) => {setNote((prevNote) => ({ ...prevNote, tags }));}, []);
-    const handleSave = useCallback(() =>
+    const handleSave = useCallback(async () =>
     {
-        alert("Note saved!");
-        navigate("/notes");
-    }, [navigate]);
+        try
+        {
+            let result;
+            const systemTags = note.tags.filter((tag) => tag.type === "builtIn").map((tag) => tag.id);
+            const userTags = note.tags.filter((tag) => tag.type === "custom").map((tag) => tag.id);
+            const payload = { system_tags: systemTags, user_tags: userTags };
+
+            if (isNew) result = await addNotes(user.id_user, note.title, note.content, note.color, payload);
+            else result = await editNotes(note.id, note.title, note.content, note.color, payload);
+
+            if (result.ok)
+            {
+                console.log(isNew ? "Note added successfully!" : "Note updated successfully!");
+                setMessage(isNew ? "Note added successfully!" : "Note updated successfully!")
+                navigate("/notes");
+            }
+            else
+            {
+                console.log("Error saving note: " + result.data.message);
+                setMessage("Error saving note: " + result.data.message);
+            }
+        }
+        catch (error)
+        {
+            console.error("Save error:", error);
+            setMessage("An unexpected error occurred. Please try again.");
+        }
+    }, [isNew, note, navigate, user]);
 
     const handleCancel = useCallback(() =>
     {
@@ -102,6 +164,7 @@ const NoteEditor = () =>
                 {!isPopout && (<button type="button" onClick={handlePopOut}>Pop Out Editor</button>)}
                 {isPopout && (<button type="button" onClick={handlePopIn}>Pop In Editor</button>)}
             </footer>
+            <Modal message={message} buttons={[{label: "Close", action: () => setMessage("")}]} />
         </div>
     );
 };

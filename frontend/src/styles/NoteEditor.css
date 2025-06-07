@@ -99,7 +99,7 @@
     align-items: center;
 }
 
-.dropdown-arrow {margin-left: 10px;}
+.dropdown-arrow {margin-left: auto;}
 .dropdown-options
 {
     position: absolute;

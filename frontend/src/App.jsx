@@ -33,7 +33,7 @@ const App = () =>
                 <Route path="/delprofile" element={user ? (<DeleteProfilePage user={user} onDelete={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
                 <Route path="/recoverpass" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : <RecoverPassword />} />
                 <Route path="/notes" element={user ? (<Notes user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
-                <Route path="/notes/:id" element={<NoteEditor onLogout={() => setUser(null)} />} />
+                <Route path="/notes/:id" element={user ? (<NoteEditor user={user} />) : (<Login onLogin={setUser} />)} />
             </Routes>
         </Router>
     );

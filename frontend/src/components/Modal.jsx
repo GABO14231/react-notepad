@@ -1,11 +1,12 @@
+import ReactDOM from "react-dom";
 import "../styles/Modal.css";
 
 const Modal = ({message, buttons = []}) =>
 {
     if (!message) return null;
 
-    return (
-        <div className="overlay">
+    return ReactDOM.createPortal(
+        <div className="overlay" onClick={(e) => e.stopPropagation()}>
             <div className="modal">
                 <div className="content">
                     <p>{message}</p>
@@ -15,7 +16,7 @@ const Modal = ({message, buttons = []}) =>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>, document.body
     );
 };
 

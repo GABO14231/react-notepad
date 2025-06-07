@@ -26,13 +26,35 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.note_tags (
-    note_id bigint NOT NULL,
-    tag_id bigint NOT NULL,
-    utag_id bigint NOT NULL
+    id_note_tag bigint NOT NULL,
+    note_id bigint,
+    tag_id bigint,
+    utag_id bigint
 );
 
 
 ALTER TABLE public.note_tags OWNER TO postgres;
+
+--
+-- Name: note_tags_id_note_tag_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.note_tags_id_note_tag_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.note_tags_id_note_tag_seq OWNER TO postgres;
+
+--
+-- Name: note_tags_id_note_tag_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.note_tags_id_note_tag_seq OWNED BY public.note_tags.id_note_tag;
+
 
 --
 -- Name: notes; Type: TABLE; Schema: public; Owner: postgres
@@ -176,6 +198,13 @@ ALTER SEQUENCE public.users_id_user_seq OWNED BY public.users.id_user;
 
 
 --
+-- Name: note_tags id_note_tag; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.note_tags ALTER COLUMN id_note_tag SET DEFAULT nextval('public.note_tags_id_note_tag_seq'::regclass);
+
+
+--
 -- Name: notes id_note; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -207,7 +236,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id_user SET DEFAULT nextval('public.u
 -- Data for Name: note_tags; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.note_tags (note_id, tag_id, utag_id) FROM stdin;
+COPY public.note_tags (id_note_tag, note_id, tag_id, utag_id) FROM stdin;
 \.
 
 
@@ -224,6 +253,9 @@ COPY public.notes (id_note, note_owner, note_title, note_content, note_color) FR
 --
 
 COPY public.tags (id_tags, tag_name) FROM stdin;
+1	Reminder
+2	Important
+3	To-Do
 \.
 
 
@@ -244,6 +276,13 @@ COPY public.users (id_user, email, username, user_password, first_name, last_nam
 
 
 --
+-- Name: note_tags_id_note_tag_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.note_tags_id_note_tag_seq', 1, false);
+
+
+--
 -- Name: notes_id_note_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -254,7 +293,7 @@ SELECT pg_catalog.setval('public.notes_id_note_seq', 1, false);
 -- Name: tags_id_tags_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.tags_id_tags_seq', 1, false);
+SELECT pg_catalog.setval('public.tags_id_tags_seq', 3, true);
 
 
 --
@@ -276,7 +315,7 @@ SELECT pg_catalog.setval('public.users_id_user_seq', 1, false);
 --
 
 ALTER TABLE ONLY public.note_tags
-    ADD CONSTRAINT pk_note_tags PRIMARY KEY (note_id, utag_id, tag_id);
+    ADD CONSTRAINT pk_note_tags PRIMARY KEY (id_note_tag);
 
 
 --
@@ -309,14 +348,6 @@ ALTER TABLE ONLY public.user_tags
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT pk_users PRIMARY KEY (id_user);
-
-
---
--- Name: notes unq_notes_note_owner; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.notes
-    ADD CONSTRAINT unq_notes_note_owner UNIQUE (note_owner);
 
 
 --

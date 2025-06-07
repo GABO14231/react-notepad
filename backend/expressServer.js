@@ -385,12 +385,12 @@ app.delete('/deletenotes', async (req, res) =>
         await pool.query("DELETE FROM note_tags WHERE note_id = $1", [id]);
         await pool.query("DELETE FROM notes WHERE id_note = $1", [id]);
         const checkNotes = await pool.query("SELECT * FROM notes;");
-        if (checkNotes.rowCount === 0) await pool.query("ALTER SEQUENCE note_tags_id_note_tag_seq RESTART;");
+        if (checkNotes.rowCount === 0) await pool.query("ALTER SEQUENCE notes_id_note_seq RESTART;");
         else
         {
             await pool.query(`WITH updated AS (SELECT id_note, ROW_NUMBER() OVER (ORDER BY id_note) AS new_id FROM notes)
                 UPDATE notes SET id_note = updated.new_id FROM updated WHERE notes.id_note = updated.id_note;`);
-            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note) FROM notes), 0) + 1);");
+            await pool.query("SELECT setval('notes_id_note_seq', COALESCE((SELECT MAX(id_note) FROM notes), 0) + 1);");
         }
 
         const checkNoteTags = await pool.query("SELECT * FROM note_tags;");

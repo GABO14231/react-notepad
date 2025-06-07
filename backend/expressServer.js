@@ -46,7 +46,7 @@ app.post('/users/register', async (req, res) =>
         const query = `INSERT INTO public.users (email, username, user_password, first_name, last_name, code) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;`;
         const result = await pool.query(query, [email, username, password, first_name, last_name, code]);
         console.log(`Registered new user: ${username}`);
-        res.status(201).json({status: "success", message: "User registered!", user: result.rows[0]});
+        res.status(200).json({status: "success", message: "User registered!", user: result.rows[0]});
     }
     catch (error)
     {
@@ -251,7 +251,7 @@ app.post('/addnotes', async (req, res) =>
         }          
 
         if (tagInsertPromises.length > 0) await Promise.all(tagInsertPromises);
-        return res.status(201).json({status: 'success', message: 'Note added successfully', note_id: insertedNoteId});
+        else res.status(200).json({status: 'success', message: 'Note added successfully', note_id: insertedNoteId});
     }
     catch (error)
     {
@@ -268,13 +268,13 @@ app.post('/addtags', async (req, res) =>
     {
         const query = `INSERT INTO user_tags (user_id, utag_name) VALUES ($1, $2) RETURNING *;`;
         const result = await pool.query(query, [id, tags]);
-        if (result.rowCount > 0) return res.status(201).json({status: 'success', message: 'Tag added successfully', tag: result.rows[0]});
-        else return res.status(500).json({status: 'error', message: 'Failed to add tag'});
+        if (result.rowCount !== 0) res.status(400).json({status: 'error', message: 'Failed to add tag'});
+        else res.status(200).json({ status: 'success', message: 'Tag added successfully', tag: result.rows[0] });
     }
     catch (error)
     {
         console.error(error);
-        return res.status(500).json({status: 'error', message: 'Failed to add tag'});
+        res.status(500).json({status: 'error', message: 'Failed to add tag'});
     }
 });  
 
@@ -287,12 +287,12 @@ app.post('/gettags', async (req, res) =>
         const customTags = customResult.rowCount ? customResult.rows : [];
         const builtInResult = await pool.query("SELECT * FROM tags");
         const builtInTags = builtInResult.rowCount ? builtInResult.rows : [];
-        return res.status(200).json({status: 'success', message: 'Retrieved tags!', tags: {custom: customTags, builtIn: builtInTags}});
+        res.status(200).json({status: 'success', message: 'Retrieved tags!', tags: {custom: customTags, builtIn: builtInTags}});
     }
     catch (error)
     {
         console.error(error);
-        return res.status(500).json({status: 'error', message: 'Failed to retrieve tags'});
+        res.status(500).json({status: 'error', message: 'Failed to retrieve tags'});
     }
 });  
 
@@ -335,12 +335,12 @@ app.put('/editnotes', async (req, res) =>
         }
 
         if (tagInsertPromises.length > 0) await Promise.all(tagInsertPromises);
-        return res.status(200).json({status: 'success', message: 'Note updated successfully', note: noteResult.rows[0]});
+        else res.status(200).json({status: 'success', message: 'Note updated successfully', note: noteResult.rows[0]});
     }
     catch (error)
     {
         console.error(error);
-        return res.status(500).json({status: 'error', message: 'Failed to update note'});
+        res.status(500).json({status: 'error', message: 'Failed to update note'});
     }
 });  
 
@@ -359,14 +359,14 @@ app.post('/getnotes', async (req, res) =>
         if (notesResult.rowCount === 0)
         {
             console.log(`ERROR: User has no notes!`);
-            return res.status(400).json({status: 'error', message: 'User has no notes'});
+            res.status(400).json({status: 'error', message: 'User has no notes'});
         }
-        return res.status(200).json({status: 'success', message: 'Retrieved notes!', notes: notesResult.rows});
+        else res.status(200).json({status: 'success', message: 'Retrieved notes!', notes: notesResult.rows});
     }
     catch (error)
     {
         console.error(error);
-        return res.status(500).json({status: 'error', message: 'Failed to get note information.'});
+        res.status(500).json({status: 'error', message: 'Failed to get note information.'});
     }
 });  
 
@@ -397,13 +397,13 @@ app.delete('/deletenotes', async (req, res) =>
         if (checkNoteTags.rowCount === 0) await pool.query("ALTER SEQUENCE note_tags_id_note_tag_seq RESTART;");
         else
         {
-            await pool.query(`WITH updated AS (SELECT id_note_tags, ROW_NUMBER() OVER (ORDER BY id_note_tags) AS new_id 
-                FROM note_tags) UPDATE note_tags SET id_note_tags = updated.new_id FROM updated WHERE note_tags.id_note_tags = updated.id_note_tags;`);
-            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note_tags) FROM note_tags), 0) + 1);");
+            await pool.query(`WITH updated AS (SELECT id_note_tag, ROW_NUMBER() OVER (ORDER BY id_note_tag) AS new_id 
+                FROM note_tags) UPDATE note_tags SET id_note_tag = updated.new_id FROM updated WHERE note_tags.id_note_tag = updated.id_note_tag;`);
+            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note_tag) FROM note_tags), 0) + 1);");
         }
 
         console.log(`Note with id ${id} deleted and sequences corrected.`);
-        return res.status(200).json({status: 'success', message: 'Note deleted and sequences updated'});
+        res.status(200).json({status: 'success', message: 'Note deleted and sequences updated'});
     }
     catch (error)
     {
@@ -414,7 +414,7 @@ app.delete('/deletenotes', async (req, res) =>
 
 app.delete('/deletetags', async (req, res) =>
 {
-    const {id} = req.body; // id of the user tag to delete
+    const {id} = req.body;
     try
     {
         const deleteReferencesQuery = `DELETE FROM note_tags WHERE utag_id = $1;`;
@@ -434,13 +434,13 @@ app.delete('/deletetags', async (req, res) =>
         if (checkNoteTags.rowCount === 0) await pool.query("ALTER SEQUENCE note_tags_id_note_tag_seq RESTART;");
         else
         {
-            await pool.query(`WITH updated AS (SELECT id_note_tags, ROW_NUMBER() OVER (ORDER BY id_note_tags) AS new_id FROM note_tags)
-                UPDATE note_tags SET id_note_tags = updated.new_id FROM updated WHERE note_tags.id_note_tags = updated.id_note_tags;`);
-            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note_tags) FROM note_tags), 0) + 1);");
+            await pool.query(`WITH updated AS (SELECT id_note_tag, ROW_NUMBER() OVER (ORDER BY id_note_tag) AS new_id FROM note_tags)
+                UPDATE note_tags SET id_note_tag = updated.new_id FROM updated WHERE note_tags.id_note_tag = updated.id_note_tag;`);
+            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note_tag) FROM note_tags), 0) + 1);");
         }
 
-        if (result.rowCount > 0) res.status(200).json({status: "success", message: "Tag deleted successfully."});
-        else res.status(404).json({status: "error", message: "Tag not found."});
+        if (result.rowCount === 0) res.status(400).json({status: "error", message: "Tag not found."});
+        else res.status(200).json({status: "success", message: "Tag deleted successfully."});
     }
     catch (error)
     {

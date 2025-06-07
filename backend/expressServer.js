@@ -249,9 +249,7 @@ app.post('/addnotes', async (req, res) =>
                 }
             }
         }          
-
-        if (tagInsertPromises.length > 0) await Promise.all(tagInsertPromises);
-        else res.status(200).json({status: 'success', message: 'Note added successfully', note_id: insertedNoteId});
+        res.status(200).json({status: 'success', message: 'Note added successfully', note_id: insertedNoteId});
     }
     catch (error)
     {
@@ -268,8 +266,7 @@ app.post('/addtags', async (req, res) =>
     {
         const query = `INSERT INTO user_tags (user_id, utag_name) VALUES ($1, $2) RETURNING *;`;
         const result = await pool.query(query, [id, tags]);
-        if (result.rowCount !== 0) res.status(400).json({status: 'error', message: 'Failed to add tag'});
-        else res.status(200).json({ status: 'success', message: 'Tag added successfully', tag: result.rows[0] });
+        res.status(200).json({status: 'success', message: 'Tag added successfully', tag: result.rows[0]});
     }
     catch (error)
     {
@@ -326,16 +323,14 @@ app.put('/editnotes', async (req, res) =>
             }
             if (Array.isArray(tags.user_tags))
             {
-                for (let userTag of note_tags.user_tags)
+                for (let userTag of tags.user_tags)
                 {
                     const userTagQuery = `INSERT INTO note_tags (note_id, utag_id) VALUES ($1, $2)`;
                     tagInsertPromises.push(pool.query(userTagQuery, [id, userTag]));
                 }
             }
         }
-
-        if (tagInsertPromises.length > 0) await Promise.all(tagInsertPromises);
-        else res.status(200).json({status: 'success', message: 'Note updated successfully', note: noteResult.rows[0]});
+        res.status(200).json({status: 'success', message: 'Note updated successfully', note: noteResult.rows[0]});
     }
     catch (error)
     {

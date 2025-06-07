@@ -45,7 +45,7 @@ const Notes = ({user, onLogout}) =>
         {
             const result = await getTags(user.id_user);
             if (result.ok && result.data?.tags) setAllTags(result.data.tags);
-            else setAllTags({ custom: [], builtIn: [] });
+            else setAllTags({custom: [], builtIn: []});
         };
         fetchTags();
     }, [user, refresh]);
@@ -100,9 +100,7 @@ const Notes = ({user, onLogout}) =>
         const tagName = prompt("Enter the custom tag name to delete:");
         if (!tagName || tagName.trim() === "") return;
         const trimmedName = tagName.trim();
-        console.log(allTags.custom)
         const tagToDelete = allTags.custom.find((tag) => tag.utag_name.toLowerCase() === trimmedName.toLowerCase());
-        console.log(tagToDelete)
         if (!tagToDelete)
         {
             setMessage(`Custom tag "${trimmedName}" not found.`);

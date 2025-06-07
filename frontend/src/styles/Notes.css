@@ -26,7 +26,8 @@
     color: #4A90E2;
 }
 
-.actions button {
+.actions button
+{
     background-color: #4A90E2;
     border: none;
     color: #fff;
@@ -67,15 +68,20 @@
 
 .note-item h2
 {
+    padding: 2px;
     margin: 0 0 5px;
     font-size: 18px;
-    color: #4A90E2;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
 }
 
 .note-item p
 {
     font-size: 14px;
-    color: black;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
 }
 
 .note-item .tags {margin-top: 8px;}
@@ -115,15 +121,20 @@
 
 .note-card h2
 {
+    padding: 2px;
     font-size: 18px;
-    color: #4A90E2;
+    color: white;
     margin: 0 0 5px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
 }
 
 .note-card p
 {
     font-size: 14px;
-    color: black;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
 }
 
 .note-card .tags .tag

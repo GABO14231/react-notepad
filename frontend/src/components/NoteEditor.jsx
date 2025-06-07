@@ -85,7 +85,7 @@ const NoteEditor = ({user}) =>
             let result;
             const systemTags = note.tags.filter((tag) => tag.type === "builtIn").map((tag) => tag.id);
             const userTags = note.tags.filter((tag) => tag.type === "custom").map((tag) => tag.id);
-            const payload = { system_tags: systemTags, user_tags: userTags };
+            const payload = {system_tags: systemTags, user_tags: userTags};
 
             if (isNew) result = await addNotes(user.id_user, note.title, note.content, note.color, payload);
             else result = await editNotes(note.id, note.title, note.content, note.color, payload);
@@ -94,7 +94,8 @@ const NoteEditor = ({user}) =>
             {
                 console.log(isNew ? "Note added successfully!" : "Note updated successfully!");
                 setMessage(isNew ? "Note added successfully!" : "Note updated successfully!")
-                navigate("/notes");
+                if (isPopout) window.close();
+                else navigate("/notes");
             }
             else
             {
@@ -107,7 +108,7 @@ const NoteEditor = ({user}) =>
             console.error("Save error:", error);
             setMessage("An unexpected error occurred. Please try again.");
         }
-    }, [isNew, note, navigate, user]);
+    }, [isNew, isPopout, note, navigate, user]);
 
     const handleCancel = useCallback(() =>
     {

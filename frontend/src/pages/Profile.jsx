@@ -139,7 +139,7 @@ const Profile = ({profileData, setProfileData, onLogout}) =>
 
     return (
         <div className="profile-page">
-            <Navbar options={[{label: "Go Back", path: "/dashboard" }, {label: "Logout", method: handleLogout, path: "/"}]} />
+            <Navbar options={[{label: "Go Back", path: "/notes" }, {label: "Logout", method: handleLogout, path: "/"}]} />
             <h2>Update Profile</h2>
             <form>
                 <input name="username" placeholder="Username" value={form.username} onChange={handleChange} />

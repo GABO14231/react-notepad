@@ -52,7 +52,7 @@ const Login = ({onLogin}) =>
             {
                 onLogin(data.user);
                 console.log(`Server response: ${data.message}`);
-                navigate("/dashboard");
+                navigate("/notes");
             }
             else
             {

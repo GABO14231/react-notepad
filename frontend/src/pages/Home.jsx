@@ -11,7 +11,7 @@ const Home = ({user, onLogout}) =>
     };
 
     let homeOptions = [];
-    if (user) homeOptions = [{label: "Dashboard", path: "/dashboard"}, {label: "Settings", path: "/profile"}, {label: "Logout", method: handleLogout, path: "/"}];
+    if (user) homeOptions = [{label: "Notes", path: "/notes"}, {label: "Settings", path: "/profile"}, {label: "Logout", method: handleLogout, path: "/"}];
     else homeOptions = [{label: "Login", path: "/login"}, {label: "Register", path: "/register"}];
 
     return (

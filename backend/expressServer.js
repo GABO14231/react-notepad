@@ -219,4 +219,234 @@ app.delete('/users/:id', async (req, res) =>
     }
 });
 
+app.post('/addnotes', async (req, res) =>
+{
+    const {id, title, content, color, id_tag} = req.body;
+    try
+    {
+        const noteInsertQuery = `INSERT INTO notes (note_owner, note_title, note_content, note_color)
+            VALUES ($1, $2, $3, $4) RETURNING id_note;`;
+        const noteResult = await pool.query(noteInsertQuery, [id, title, content, color]);
+        const insertedNoteId = noteResult.rows[0].id_note;
+        const tagInsertPromises = [];
+
+        if (id_tag)
+        {
+            if (Array.isArray(id_tag.system_tags))
+            {
+                for (let systemTagId of id_tag.system_tags)
+                {
+                    const sysTagQuery = `INSERT INTO note_tags (note_id, tag_id) VALUES ($1, $2);`;
+                    tagInsertPromises.push(pool.query(sysTagQuery, [insertedNoteId, systemTagId]));
+                }
+            }
+            if (Array.isArray(id_tag.user_tags))
+            {
+                for (let userTagId of id_tag.user_tags)
+                {
+                    const userTagQuery = `INSERT INTO note_tags (note_id, utag_id) VALUES ($1, $2);`;
+                    tagInsertPromises.push(pool.query(userTagQuery, [insertedNoteId, userTagId]));
+                }
+            }
+        }          
+
+        if (tagInsertPromises.length > 0) await Promise.all(tagInsertPromises);
+        return res.status(201).json({status: 'success', message: 'Note added successfully', note_id: insertedNoteId});
+    }
+    catch (error)
+    {
+        console.error(error);
+        return res.status(500).json({status: 'error', message: 'Failed to add note'});
+    }
+});
+
+app.post('/addtags', async (req, res) =>
+{
+    const {id, tags} = req.body;
+
+    try
+    {
+        const query = `INSERT INTO user_tags (user_id, utag_name) VALUES ($1, $2) RETURNING *;`;
+        const result = await pool.query(query, [id, tags]);
+        if (result.rowCount > 0) return res.status(201).json({status: 'success', message: 'Tag added successfully', tag: result.rows[0]});
+        else return res.status(500).json({status: 'error', message: 'Failed to add tag'});
+    }
+    catch (error)
+    {
+        console.error(error);
+        return res.status(500).json({status: 'error', message: 'Failed to add tag'});
+    }
+});  
+
+app.post('/gettags', async (req, res) =>
+{
+    const {id} = req.body;
+    try
+    {
+        const customResult = await pool.query("SELECT * FROM user_tags WHERE user_id = $1", [id]);
+        const customTags = customResult.rowCount ? customResult.rows : [];
+        const builtInResult = await pool.query("SELECT * FROM tags");
+        const builtInTags = builtInResult.rowCount ? builtInResult.rows : [];
+        return res.status(200).json({status: 'success', message: 'Retrieved tags!', tags: {custom: customTags, builtIn: builtInTags}});
+    }
+    catch (error)
+    {
+        console.error(error);
+        return res.status(500).json({status: 'error', message: 'Failed to retrieve tags'});
+    }
+});  
+
+app.put('/editnotes', async (req, res) =>
+{
+    const {id, title, content, color, tags} = req.body;
+
+    try
+    {
+        const updateNoteQuery = `UPDATE notes SET note_title = $1, note_content = $2, note_color = $3 WHERE id_note = $4 RETURNING *;`;
+        const noteResult = await pool.query(updateNoteQuery, [title, content, color, id]);
+
+        if (noteResult.rowCount === 0)
+        {
+            console.log(`ERROR: Note with id ${id} not found.`);
+            return res.status(404).json({status: 'error', message: 'Note not found'});
+        }
+
+        await pool.query("DELETE FROM note_tags WHERE note_id = $1", [id]);
+        let tagInsertPromises = [];
+
+        if (tags)
+        {
+            if (Array.isArray(tags.system_tags))
+            {
+                for (let systemTag of tags.system_tags)
+                {
+                    const sysTagQuery = `INSERT INTO note_tags (note_id, tag_id) VALUES ($1, $2)`;
+                    tagInsertPromises.push(pool.query(sysTagQuery, [id, systemTag]));
+                }
+            }
+            if (Array.isArray(tags.user_tags))
+            {
+                for (let userTag of note_tags.user_tags)
+                {
+                    const userTagQuery = `INSERT INTO note_tags (note_id, utag_id) VALUES ($1, $2)`;
+                    tagInsertPromises.push(pool.query(userTagQuery, [id, userTag]));
+                }
+            }
+        }
+
+        if (tagInsertPromises.length > 0) await Promise.all(tagInsertPromises);
+        return res.status(200).json({status: 'success', message: 'Note updated successfully', note: noteResult.rows[0]});
+    }
+    catch (error)
+    {
+        console.error(error);
+        return res.status(500).json({status: 'error', message: 'Failed to update note'});
+    }
+});  
+
+app.post('/getnotes', async (req, res) =>
+{
+    const {id} = req.body;
+
+    try
+    {
+        const notesResult = await pool.query(`SELECT n.*, COALESCE(json_agg(json_build_object('tag_id', nt.tag_id,
+            'utag_id', nt.utag_id, 'tag_name', CASE WHEN nt.tag_id IS NOT NULL THEN t.tag_name ELSE ut.utag_name END))
+            FILTER (WHERE nt.tag_id IS NOT NULL OR nt.utag_id IS NOT NULL), '[]') AS tags FROM notes n
+            LEFT JOIN note_tags nt ON n.id_note = nt.note_id LEFT JOIN tags t ON nt.tag_id = t.id_tags
+            LEFT JOIN user_tags ut ON nt.utag_id = ut.id_utags WHERE n.note_owner = $1 GROUP BY n.id_note;`, [id]);
+
+        if (notesResult.rowCount === 0)
+        {
+            console.log(`ERROR: User has no notes!`);
+            return res.status(400).json({status: 'error', message: 'User has no notes'});
+        }
+        return res.status(200).json({status: 'success', message: 'Retrieved notes!', notes: notesResult.rows});
+    }
+    catch (error)
+    {
+        console.error(error);
+        return res.status(500).json({status: 'error', message: 'Failed to get note information.'});
+    }
+});  
+
+app.delete('/deletenotes', async (req, res) =>
+{
+    const {id} = req.body;
+    try
+    {
+        const noteCheck = await pool.query("SELECT * FROM notes WHERE id_note = $1", [id]);
+        if (noteCheck.rowCount === 0)
+        {
+            console.log(`ERROR: Note with id ${id} not found.`);
+            return res.status(404).json({status: 'error', message: 'Note not found'});
+        }
+
+        await pool.query("DELETE FROM note_tags WHERE note_id = $1", [id]);
+        await pool.query("DELETE FROM notes WHERE id_note = $1", [id]);
+        const checkNotes = await pool.query("SELECT * FROM notes;");
+        if (checkNotes.rowCount === 0) await pool.query("ALTER SEQUENCE note_tags_id_note_tag_seq RESTART;");
+        else
+        {
+            await pool.query(`WITH updated AS (SELECT id_note, ROW_NUMBER() OVER (ORDER BY id_note) AS new_id FROM notes)
+                UPDATE notes SET id_note = updated.new_id FROM updated WHERE notes.id_note = updated.id_note;`);
+            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note) FROM notes), 0) + 1);");
+        }
+
+        const checkNoteTags = await pool.query("SELECT * FROM note_tags;");
+        if (checkNoteTags.rowCount === 0) await pool.query("ALTER SEQUENCE note_tags_id_note_tag_seq RESTART;");
+        else
+        {
+            await pool.query(`WITH updated AS (SELECT id_note_tags, ROW_NUMBER() OVER (ORDER BY id_note_tags) AS new_id 
+                FROM note_tags) UPDATE note_tags SET id_note_tags = updated.new_id FROM updated WHERE note_tags.id_note_tags = updated.id_note_tags;`);
+            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note_tags) FROM note_tags), 0) + 1);");
+        }
+
+        console.log(`Note with id ${id} deleted and sequences corrected.`);
+        return res.status(200).json({status: 'success', message: 'Note deleted and sequences updated'});
+    }
+    catch (error)
+    {
+        console.error(error);
+        return res.status(500).json({status: 'error', message: 'Failed to delete note'});
+    }
+});
+
+app.delete('/deletetags', async (req, res) =>
+{
+    const {id} = req.body; // id of the user tag to delete
+    try
+    {
+        const deleteReferencesQuery = `DELETE FROM note_tags WHERE utag_id = $1;`;
+        await pool.query(deleteReferencesQuery, [id]);
+        const deleteTagQuery = `DELETE FROM user_tags WHERE id_utags = $1 RETURNING id_utags;`;
+        const result = await pool.query(deleteTagQuery, [id]);
+
+        const checkUserTags = await pool.query("SELECT * FROM user_tags;");
+        if (checkUserTags.rowCount === 0) await pool.query("ALTER SEQUENCE user_tags_id_utags_seq RESTART;");
+        else
+        {
+            await pool.query(`WITH updated AS (SELECT id_utags, ROW_NUMBER() OVER (ORDER BY id_utags) AS new_id FROM user_tags)
+                UPDATE user_tags SET id_utags = updated.new_id FROM updated WHERE user_tags.id_utags = updated.id_utags;`);
+            await pool.query("SELECT setval('user_tags_id_utags_seq', COALESCE((SELECT MAX(id_utags) FROM user_tags), 0) + 1);");
+        }
+        const checkNoteTags = await pool.query("SELECT * FROM note_tags;");
+        if (checkNoteTags.rowCount === 0) await pool.query("ALTER SEQUENCE note_tags_id_note_tag_seq RESTART;");
+        else
+        {
+            await pool.query(`WITH updated AS (SELECT id_note_tags, ROW_NUMBER() OVER (ORDER BY id_note_tags) AS new_id FROM note_tags)
+                UPDATE note_tags SET id_note_tags = updated.new_id FROM updated WHERE note_tags.id_note_tags = updated.id_note_tags;`);
+            await pool.query("SELECT setval('note_tags_id_note_tag_seq', COALESCE((SELECT MAX(id_note_tags) FROM note_tags), 0) + 1);");
+        }
+
+        if (result.rowCount > 0) res.status(200).json({status: "success", message: "Tag deleted successfully."});
+        else res.status(404).json({status: "error", message: "Tag not found."});
+    }
+    catch (error)
+    {
+        console.error("Error deleting tag:", error);
+        res.status(500).json({ status: "error", message: "Internal server error." });
+    }
+});  
+
 app.listen(port, () => console.log(`Server running on port ${port}`));

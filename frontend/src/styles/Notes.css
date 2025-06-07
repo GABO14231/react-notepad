@@ -1,20 +1,10 @@
-:root
-{
-    --primary-color: #4A90E2;
-    --primary-hover: #357ABD;
-    --bg-dark: #2a2c30;
-    --bg-darker: #1f2023;
-    --text-light: #dadada;
-    --text-muted: black;
-}
-
 .notes-dashboard
 {
     max-width: 1200px;
     margin: 80px auto;
     padding: 50px;
-    background-color: var(--bg-dark);
-    color: var(--text-light);
+    background-color: #2a2c30;
+    color: #dadada;
     border-radius: 8px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -26,18 +16,18 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2px solid #4A90E2;
     margin-bottom: 20px;
 }
 
 .dashboard-header h1
 {
     margin: 0;
-    color: var(--primary-color);
+    color: #4A90E2;
 }
 
 .actions button {
-    background-color: var(--primary-color);
+    background-color: #4A90E2;
     border: none;
     color: #fff;
     padding: 8px 12px;
@@ -47,7 +37,7 @@
     transition: background-color 0.3s ease;
 }
 
-.actions button:hover, .actions button:focus {background-color: var(--primary-hover);}
+.actions button:hover, .actions button:focus {background-color: #357ABD;}
 .notes-content {margin-top: 20px;}
 .note-header {display: flex;}
 .note-header button {margin-left: 7px;}
@@ -61,7 +51,7 @@
 
 .note-item
 {
-    background-color: var(--bg-darker);
+    background-color: #1f2023;
     border-radius: 4px;
     padding: 10px;
     margin-bottom: 12px;
@@ -79,20 +69,20 @@
 {
     margin: 0 0 5px;
     font-size: 18px;
-    color: var(--primary-color);
+    color: #4A90E2;
 }
 
 .note-item p
 {
     font-size: 14px;
-    color: var(--text-muted);
+    color: black;
 }
 
 .note-item .tags {margin-top: 8px;}
 .tag
 {
     display: inline-block;
-    background-color: var(--primary-color);
+    background-color: #4A90E2;
     color: #fff;
     padding: 2px 6px;
     border-radius: 3px;
@@ -109,7 +99,7 @@
 
 .note-card
 {
-    background-color: var(--bg-darker);
+    background-color: #1f2023;
     border-radius: 4px;
     padding: 10px;
     width: calc(33.333% - 20px);
@@ -126,14 +116,14 @@
 .note-card h2
 {
     font-size: 18px;
-    color: var(--primary-color);
+    color: #4A90E2;
     margin: 0 0 5px;
 }
 
 .note-card p
 {
     font-size: 14px;
-    color: var(--text-muted);
+    color: black;
 }
 
 .note-card .tags .tag

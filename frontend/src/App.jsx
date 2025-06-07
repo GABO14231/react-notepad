@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import DeleteProfilePage from "./pages/DeleteProfilePage";
 import RecoverPassword from "./pages/RecoverPassword";
 import Notes from "./pages/Notes";
+import NoteEditor from "./components/NoteEditor";
 
 const App = () =>
 {
@@ -32,6 +33,7 @@ const App = () =>
                 <Route path="/delprofile" element={user ? (<DeleteProfilePage user={user} onDelete={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
                 <Route path="/recoverpass" element={user ? (<Profile profileData={user} setProfileData={setUser} onLogout={() => setUser(null)} />) : <RecoverPassword />} />
                 <Route path="/notes" element={user ? (<Notes user={user} onLogout={() => setUser(null)} />) : (<Login onLogin={setUser} />)} />
+                <Route path="/notes/:id" element={<NoteEditor onLogout={() => setUser(null)} />} />
             </Routes>
         </Router>
     );

@@ -11,7 +11,6 @@ const Notes = ({user, onLogout}) =>
     const [notes, setNotes] = useState([]);
     const [viewMode, setViewMode] = useState("list");
 
-    // Dummy data; later replace with an API call
     useEffect(() => {
         const dummyNotes = [
             {
@@ -42,33 +41,36 @@ const Notes = ({user, onLogout}) =>
         setNotes(dummyNotes);
     }, []);
 
-    // Navigation callbacks
-    const openNote = useCallback(
-        (noteId) => {
-            navigate(`/notes/${noteId}`);
-        },
-        [navigate]
-    );
+    const openNote = useCallback((noteId) =>
+    {
+        const popoutUrl = `${window.location.origin}/notes/${noteId}?popout=true`;
+        if (window.popOutEditor && !window.popOutEditor.closed)
+        {
+            window.popOutEditor.location.href = popoutUrl;
+            return;
+        }
+        navigate(`/notes/${noteId}`);
+    }, [navigate]);
 
-    const handleAddNote = useCallback(() => {
+    const handleAddNote = useCallback(() =>
+    {
+        const url = `${window.location.origin}/notes/new?popout=true`;
+        if (window.popOutEditor && !window.popOutEditor.closed)
+        {
+            window.popOutEditor.location.href = url;
+            return;
+        }
         navigate("/notes/new");
     }, [navigate]);
 
-    const toggleViewMode = useCallback(() => {
-        setViewMode((prev) => (prev === "list" ? "grid" : "list"));
-    }, []);
+    const toggleViewMode = useCallback(() => {setViewMode((prev) => (prev === "list" ? "grid" : "list"));}, []);
 
     const handleLogout = () =>
     {
         console.log("Logging out...");
         onLogout();
     };
-
-    const notesOptions = [
-        { label: "Home", path: "/" },
-        { label: "Settings", path: "/profile" },
-        { label: "Logout", method: handleLogout, path: "/" },
-    ];
+    const notesOptions = [{label: "Home", path: "/"}, {label: "Settings", path: "/profile"}, {label: "Logout", method: handleLogout, path: "/"}];
 
     return (
         <div className="notes-dashboard">
@@ -83,17 +85,15 @@ const Notes = ({user, onLogout}) =>
                 </div>
             </header>
             <main className="notes-content">
-                {viewMode === "list" ? (
+                {viewMode === "list" ?
+                (
                     <ul className="notes-list">
-                        {notes.map((note) => (
-                            <NoteItem key={note.id} note={note} onClick={openNote} />
-                        ))}
+                        {notes.map((note) => (<NoteItem key={note.id} note={note} onClick={openNote} />))}
                     </ul>
-                ) : (
+                ):
+                (
                     <div className="notes-grid">
-                        {notes.map((note) => (
-                            <NoteCard key={note.id} note={note} onClick={openNote} />
-                        ))}
+                        {notes.map((note) => (<NoteCard key={note.id} note={note} onClick={openNote} />))}
                     </div>
                 )}
             </main>
